@@ -24,7 +24,7 @@ export class RouteGenerator extends Generator {
                     if (delay == null || delay == 0) {
                         delay = u.tripUpdate?.stopTimeUpdate?.at(0)?.arrival?.delay ?? delay;
                     }
-                    if (delay == null) return null
+                    if (delay == null || delay == 0) return null
 
                     return <gtfs_api.IRealtimeUpdate>{
                         tripId: u.tripUpdate!.trip.tripId,
