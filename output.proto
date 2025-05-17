@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+option java_package = "cl.emilym.gtfs";
+
+package gtfs_api;
+
+message RealtimeEndpoint {
+    repeated RealtimeUpdate updates = 1;
+}
+
+message RealtimeUpdate {
+    required string tripId = 1;
+    optional int32 delay = 2;
+}

@@ -1,38 +1,34 @@
 import { got } from 'got';
-import { transit_realtime } from './gtfs-rt'
-import { proto } from './gtfs-api';
+import { transit_realtime } from './proto/gtfs-rt'
+import { trip_index } from './proto/trip-index';
+import { S3Client, S3ClientConfig, GetObjectCommand, GetObjectRequest } from '@aws-sdk/client-s3';
 
 export class Scraper {
 
-    static readonly defaultRoot = "https://api.sinatra-transport.com/canberra"
-
     async gtfsRt(url: string): Promise<transit_realtime.FeedMessage> {
-        let response = await got<Uint8Array>(url)
+        const response = await got<Uint8Array>(url)
         return transit_realtime.FeedMessage.decode(response.rawBody)
     }
 
-    async routes(
-        root: string = Scraper.defaultRoot
-    ): Promise<proto.RouteEndpoint> {
-        let response = await got<Uint8Array>(`${root}/routes.pb`);
-        return proto.RouteEndpoint.decode(response.rawBody);
+    async tripIndex(key: string = "trip-index.pb"): Promise<trip_index.TripIndex> {
+        const s3 = new S3Client(<S3ClientConfig>{
+            region: "ap-southeast-2"
+        })
+
+        const command = new GetObjectCommand(<GetObjectRequest>{
+            Bucket: "sinatra-private",
+            Key: key
+        });
+
+        const response = await s3.send(command);
+        const bytes = await response.Body?.transformToByteArray();
+        if (bytes == undefined) throw Error(`Unable to fetch trip-index (key = ${key})`)
+
+        return trip_index.TripIndex.decode(bytes);
     }
 
-    async services(
-        routeId: string, 
-        root: string = Scraper.defaultRoot
-    ): Promise<proto.RouteServicesEndpoint> {
-        let response = await got<Uint8Array>(`${root}/route/${routeId}/services.pb`);
-        return proto.RouteServicesEndpoint.decode(response.rawBody);
-    }
+}
 
-    async serviceTimetable(
-        routeId: string, 
-        serviceId: string,
-        root: string = Scraper.defaultRoot
-    ): Promise<proto.RouteServicesEndpoint> {
-        let response = await got<Uint8Array>(`${root}/route/${routeId}/service/${serviceId}/timetable.pb`);
-        return proto.RouteServicesEndpoint.decode(response.rawBody);
-    }
-
+export class LocalScraper extends Scraper {
+    
 }
