@@ -36,7 +36,7 @@ export class RouteGenerator extends Generator {
             out.push(<FileSpec>{
                 key: `canberra/v1/route/${routeId}/live.pb`,
                 contents: gtfs_api.RealtimeEndpoint.encode(message).finish(),
-                json: JSON.stringify(message)
+                mimeType: "application/x-protobuf; proto=cl.emilym.gtfs_api.RealtimeEndpoint"
             });
         }
 

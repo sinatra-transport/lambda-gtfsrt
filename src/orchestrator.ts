@@ -3,6 +3,7 @@ import { Generator } from './generator/generator'
 import { transit_realtime } from './proto/gtfs-rt'
 import { Scraper } from './scraper'
 import { FileSpec, TripData } from './models';
+import { Uploader } from './uploader';
 
 export interface OrchestratorParams {
     gtfsrtUrl: string,
@@ -13,15 +14,18 @@ export class Orchestrator {
     readonly params: OrchestratorParams;
     readonly _scraper: Scraper;
     readonly _generators: Generator[]
+    readonly _uploader: Uploader
 
     constructor(
         params: OrchestratorParams, 
         scraper: Scraper = new Scraper(),
-        generators: Generator[] = [new RouteGenerator()]
+        uploader: Uploader = new Uploader(),
+        generators: Generator[] = [new RouteGenerator()],
     ) {
         this.params = params;
         this._scraper = scraper;
         this._generators = generators;
+        this._uploader = uploader;
     }
 
     async run() {
@@ -42,7 +46,9 @@ export class Orchestrator {
     }
 
     async _upload(specs: FileSpec[]) {
-        console.log(specs[0].json);
+        for (const spec of specs) {
+            this._uploader.upload(spec, this.params.destinationBucket)
+        }
     }
     
 }

@@ -4,7 +4,7 @@ import { trip_index } from "./proto/trip-index"
 export interface FileSpec {
     key: string
     contents: Uint8Array
-    json: string
+    mimeType?: string | undefined
 }
 
 export interface TripData {
