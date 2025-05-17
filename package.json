@@ -1,0 +1,23 @@
+{
+  "name": "gtfsrt-lambda",
+  "version": "0.0.1",
+  "description": "A lambda to scrap a GTFS-RT config and generate smaller files for each route, trip, and stop",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "test": "npx tsx test.ts"
+  },
+  "author": "Emily McLean",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.149",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=22.0.0 <23.0.0"
+  },
+  "dependencies": {
+    "got": "^14.4.7",
+    "protobufjs": "^7.5.2"
+  }
+}
