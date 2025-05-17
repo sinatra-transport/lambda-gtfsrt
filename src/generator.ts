@@ -1,4 +1,4 @@
-import { transit_realtime } from './gtfsrt'
+import { transit_realtime } from './gtfs-rt'
 import { Scraper } from './scraper'
 
 export interface GeneratorParams {
