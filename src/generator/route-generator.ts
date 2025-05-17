@@ -4,7 +4,6 @@ import { trip_index } from "../proto/trip-index";
 import { gtfs_api } from "../proto/output";
 import { Generator } from "./generator";
 import groupBy from 'just-group-by';
-import { Writer } from "protobufjs";
 
 export class RouteGenerator extends Generator {
 
@@ -12,7 +11,7 @@ export class RouteGenerator extends Generator {
         const routeTrips = groupBy(index.trips, (i) => i.routeId);
         var out = <FileSpec[]>[];
 
-        for (const routeId in routeTrips.K) {
+        for (const routeId in routeTrips) {
             const tripIds = routeTrips[routeId].map((t) => t.tripId);
             const updates = feed.entity.filter((e) => 
                 e.isDeleted !== true && e.tripUpdate?.trip?.tripId != null && e.tripUpdate?.trip?.tripId in tripIds
@@ -32,13 +31,11 @@ export class RouteGenerator extends Generator {
                         delay: delay
                     }
                 }).filter((u) => u != null)
-            })
-            const writer = new Writer();
-            gtfs_api.RealtimeEndpoint.encode(message, writer)
+            });
             
             out.push(<FileSpec>{
                 key: `route/${routeId}/live.pb`,
-                contents: writer.finish(),
+                contents: gtfs_api.RealtimeEndpoint.encode(message).finish(),
                 json: JSON.stringify(message)
             });
         }

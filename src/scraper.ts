@@ -2,6 +2,7 @@ import { got } from 'got';
 import { transit_realtime } from './proto/gtfs-rt'
 import { trip_index } from './proto/trip-index';
 import { S3Client, S3ClientConfig, GetObjectCommand, GetObjectRequest } from '@aws-sdk/client-s3';
+import fs from 'node:fs/promises';
 
 export class Scraper {
 
@@ -30,5 +31,8 @@ export class Scraper {
 }
 
 export class LocalScraper extends Scraper {
-    
+    override async tripIndex(key?: string): Promise<trip_index.TripIndex> {
+        const file = await fs.readFile("./test_data/trip-index.pb");
+        return trip_index.TripIndex.decode(file);
+    }
 }
