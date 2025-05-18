@@ -1,12 +1,12 @@
 resource "aws_iam_role_policy" "lambda_policy" {
     name = "lambda_gtfsrt_policy"
-    role = aws_iam_role.lambda_role
-    policy = data.aws_iam_policy_document.lambda_policy
+    role = aws_iam_role.lambda_role.id
+    policy = data.aws_iam_policy_document.lambda_policy.json
 }
 
 resource "aws_iam_role" "lambda_role" {
   name = "lambda_gtfsrt_role"
-  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy
+  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
 }
 
 data "aws_iam_policy_document" "lambda_assume_role_policy" {
@@ -27,8 +27,8 @@ data "aws_iam_policy_document" "lambda_policy" {
     ]
 
     resources = [
-      data.terraform_remote_state.main_infra.outputs.private_bucket_arn,
-      "${data.terraform_remote_state.main_infra.outputs.private_bucket_arn}/*",
+      data.terraform_remote_state.main_infra.outputs.bucket_private_arn,
+      "${data.terraform_remote_state.main_infra.outputs.bucket_private_arn}/*",
     ]
   }
 
@@ -40,8 +40,8 @@ data "aws_iam_policy_document" "lambda_policy" {
     ]
 
     resources = [
-      "${data.terraform_remote_state.main_infra.outputs.api_bucket_arn}/canberra/v1/route/*/live.pb",
-      "${data.terraform_remote_state.main_infra.outputs.api_develop_bucket_arn}/canberra/v1/route/*/live.pb"
+      "${data.terraform_remote_state.main_infra.outputs.bucket_api_prod_arn}/canberra/v1/route/*/live.pb",
+      "${data.terraform_remote_state.main_infra.outputs.bucket_api_develop_arn}/canberra/v1/route/*/live.pb"
     ]
   }
 }
