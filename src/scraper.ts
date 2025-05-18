@@ -1,4 +1,3 @@
-import { got } from 'got';
 import { transit_realtime } from './proto/gtfs-rt.js'
 import { trip_index } from './proto/trip-index.js';
 import { S3Client, S3ClientConfig, GetObjectCommand, GetObjectRequest } from '@aws-sdk/client-s3';
