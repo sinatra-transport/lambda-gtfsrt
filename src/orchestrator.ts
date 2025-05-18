@@ -30,7 +30,7 @@ export class Orchestrator {
     async run() {
         const data = await this._setup();
         const specs = await this._generate(data);
-        this._upload(specs);
+        await this._upload(specs);
     }
 
     async _setup(): Promise<TripData> {
