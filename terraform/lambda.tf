@@ -13,7 +13,7 @@ resource "aws_lambda_function" "lambda_gtfsrt" {
     handler = "index.handler"
     runtime = "nodejs22.x"
 
-    memory_size = 256
+    memory_size = 128
     architectures = [ "x86_64" ]
 
     depends_on = [

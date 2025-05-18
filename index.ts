@@ -8,7 +8,7 @@ interface ScrapeEvent {
 
 export const handler: Handler<ScrapeEvent> = async (event: ScrapeEvent, context: Context) => {
     console.log(`Started with parameters ${JSON.stringify(event)}`)
-    new Orchestrator(
+    await new Orchestrator(
         <OrchestratorParams>{
             gtfsrtUrl: event.gtfsrtUrl,
             destinationBucket: event.destinationBucket
