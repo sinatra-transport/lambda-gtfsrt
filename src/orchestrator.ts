@@ -34,6 +34,7 @@ export class Orchestrator {
     }
 
     async _setup(): Promise<TripData> {
+        console.log("Fetching required data");
         return <TripData>{
             gtfsRt: await this._scraper.gtfsRt(this.params.gtfsrtUrl),
             tripIndex: await this._scraper.tripIndex()
@@ -41,11 +42,13 @@ export class Orchestrator {
     }
 
     async _generate(data: TripData): Promise<FileSpec[]> {
+        console.log("Generating output files");
         return this._generators.map((g) => g.generate(data.gtfsRt, data.tripIndex)).flat();
     }
 
     async _upload(specs: FileSpec[]) {
         for (const spec of specs) {
+            console.log(`Uploading file ${spec.key} (total = ${specs.length})`)
             this._uploader.upload(spec, this.params.destinationBucket)
         }
     }
