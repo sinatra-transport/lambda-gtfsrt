@@ -23,28 +23,60 @@ resource "aws_lambda_function" "lambda_gtfsrt" {
     ]
 }
 
-resource "aws_cloudwatch_event_rule" "lambda_schedule" {
-  name = "lambda_gtfsrt_schedule"
-  description = "trigger lambda gtfsrt every 10 minutes"
+// Develop schedule
+
+resource "aws_cloudwatch_event_rule" "lambda_schedule_develop" {
+  name = "lambda_gtfsrt_schedule_develop"
+  description = "trigger lambda gtfsrt every 10 minutes for develop"
+  state = "ENABLED"
 
   schedule_expression = "rate(10 minutes)"
 }
 
-resource "aws_cloudwatch_event_target" "lambda_target" {
-  rule = aws_cloudwatch_event_rule.lambda_schedule.name
+resource "aws_cloudwatch_event_target" "lambda_target_develop" {
+  rule = aws_cloudwatch_event_rule.lambda_schedule_develop.name
   target_id = "SendToLambda"
   arn = aws_lambda_function.lambda_gtfsrt.arn
   input = jsonencode({
     "gtfsrtUrl": "https://files.transport.act.gov.au/feeds/lightrail.pb",
     "destinationBucket": "sinatra-develop-api"
-    "ttl": 20
+    "ttl": 10
   })
 }
 
-resource "aws_lambda_permission" "allow_eventbridge" {
+resource "aws_lambda_permission" "allow_eventbridge_develop" {
   statement_id  = "AllowExecutionFromEventBridge"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.lambda_gtfsrt.function_name
   principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.lambda_schedule.arn
+  source_arn    = aws_cloudwatch_event_rule.lambda_schedule_develop.arn
+}
+
+// Prod schedule
+
+resource "aws_cloudwatch_event_rule" "lambda_schedule_prod" {
+  name = "lambda_gtfsrt_schedule_prod"
+  description = "trigger lambda gtfsrt every 1 minute for prod"
+  state = "ENABLED"
+
+  schedule_expression = "rate(1 minute)"
+}
+
+resource "aws_cloudwatch_event_target" "lambda_target_prod" {
+  rule = aws_cloudwatch_event_rule.lambda_schedule_prod.name
+  target_id = "SendToLambda"
+  arn = aws_lambda_function.lambda_gtfsrt.arn
+  input = jsonencode({
+    "gtfsrtUrl": "https://files.transport.act.gov.au/feeds/lightrail.pb",
+    "destinationBucket": "sinatra-api"
+    "ttl": 2
+  })
+}
+
+resource "aws_lambda_permission" "allow_eventbridge_prod" {
+  statement_id  = "AllowExecutionFromEventBridge"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_gtfsrt.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.lambda_schedule_prod.arn
 }
