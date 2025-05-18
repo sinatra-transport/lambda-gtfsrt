@@ -45,7 +45,7 @@ resource "aws_cloudwatch_event_target" "lambda_target_develop" {
 }
 
 resource "aws_lambda_permission" "allow_eventbridge_develop" {
-  statement_id  = "AllowExecutionFromEventBridge"
+  statement_id  = "AllowExecutionFromEventBridgeDevelop"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.lambda_gtfsrt.function_name
   principal     = "events.amazonaws.com"
@@ -74,7 +74,7 @@ resource "aws_cloudwatch_event_target" "lambda_target_prod" {
 }
 
 resource "aws_lambda_permission" "allow_eventbridge_prod" {
-  statement_id  = "AllowExecutionFromEventBridge"
+  statement_id  = "AllowExecutionFromEventBridgeProd"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.lambda_gtfsrt.function_name
   principal     = "events.amazonaws.com"
