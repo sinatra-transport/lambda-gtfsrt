@@ -6,11 +6,14 @@ import { S3Client, S3ClientConfig, GetObjectCommand, GetObjectRequest } from '@a
 export class Scraper {
 
     async gtfsRt(url: string): Promise<transit_realtime.FeedMessage> {
-        const response = await got<Uint8Array>(url)
-        return transit_realtime.FeedMessage.decode(response.rawBody)
+        console.log(`Downloading gtfs-rt from ${url}`);
+        const response = await got<Uint8Array>(url);
+        console.log(`Successfully fetched gtfs-rt`);
+        return transit_realtime.FeedMessage.decode(response.rawBody);
     }
 
     async tripIndex(key: string = "trip-index.pb"): Promise<trip_index.TripIndex> {
+        console.log(`Fetching trip-index`);
         const s3 = new S3Client(<S3ClientConfig>{
             region: "ap-southeast-2"
         });
@@ -22,6 +25,7 @@ export class Scraper {
 
         const response = await s3.send(command);
         const bytes = await response.Body?.transformToByteArray();
+        console.log(`Fetched trip-index (is undefined = ${bytes == undefined})`);
         if (bytes == undefined) throw Error(`Unable to fetch trip-index (key = ${key})`)
 
         return trip_index.TripIndex.decode(bytes);
