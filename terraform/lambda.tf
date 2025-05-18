@@ -2,7 +2,7 @@ resource "aws_lambda_function" "lambda_gtfsrt" {
     function_name = "gtfsrt"
     s3_bucket = data.terraform_remote_state.main_infra.outputs.bucket_lambda_arn
     s3_key = "lambda-gtfsrt.zip"
-    role = aws_iam_role.lambda_role
+    role = aws_iam_role.lambda_role.arn
     handler = "index.handler"
     runtime = "nodejs22.x"
 
