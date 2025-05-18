@@ -8,6 +8,9 @@ export namespace gtfs_api {
 
         /** RealtimeEndpoint updates */
         updates?: (gtfs_api.IRealtimeUpdate[]|null);
+
+        /** RealtimeEndpoint expireTimestamp */
+        expireTimestamp?: (string|null);
     }
 
     /** Represents a RealtimeEndpoint. */
@@ -21,6 +24,9 @@ export namespace gtfs_api {
 
         /** RealtimeEndpoint updates. */
         public updates: gtfs_api.IRealtimeUpdate[];
+
+        /** RealtimeEndpoint expireTimestamp. */
+        public expireTimestamp: string;
 
         /**
          * Creates a new RealtimeEndpoint instance using the specified properties.

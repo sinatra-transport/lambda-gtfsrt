@@ -6,6 +6,7 @@ import { Generator } from "./generator.js";
 import groupBy from 'just-group-by';
 
 export class RouteGenerator extends Generator {
+    static readonly liveExpireDuration = 2 * 60000; // 2 minutes
 
     generate(feed: transit_realtime.FeedMessage, index: trip_index.TripIndex): FileSpec[] {
         const routeTrips = groupBy(index.trips, (i) => i.routeId);
@@ -30,7 +31,10 @@ export class RouteGenerator extends Generator {
                         tripId: u.tripUpdate!.trip.tripId,
                         delay: delay
                     }
-                }).filter((u) => u != null)
+                }).filter((u) => u != null),
+                expireTimestamp: new Date(
+                    new Date(new Date().toUTCString()).getTime() + RouteGenerator.liveExpireDuration
+                ).toISOString()
             });
             
             out.push(<FileSpec>{

@@ -6,6 +6,7 @@ package gtfs_api;
 
 message RealtimeEndpoint {
     repeated RealtimeUpdate updates = 1;
+    optional string expireTimestamp = 2;
 }
 
 message RealtimeUpdate {

@@ -23,6 +23,7 @@ export const gtfs_api = $root.gtfs_api = (() => {
          * @memberof gtfs_api
          * @interface IRealtimeEndpoint
          * @property {Array.<gtfs_api.IRealtimeUpdate>|null} [updates] RealtimeEndpoint updates
+         * @property {string|null} [expireTimestamp] RealtimeEndpoint expireTimestamp
          */
 
         /**
@@ -48,6 +49,14 @@ export const gtfs_api = $root.gtfs_api = (() => {
          * @instance
          */
         RealtimeEndpoint.prototype.updates = $util.emptyArray;
+
+        /**
+         * RealtimeEndpoint expireTimestamp.
+         * @member {string} expireTimestamp
+         * @memberof gtfs_api.RealtimeEndpoint
+         * @instance
+         */
+        RealtimeEndpoint.prototype.expireTimestamp = "";
 
         /**
          * Creates a new RealtimeEndpoint instance using the specified properties.
@@ -76,6 +85,8 @@ export const gtfs_api = $root.gtfs_api = (() => {
             if (message.updates != null && message.updates.length)
                 for (let i = 0; i < message.updates.length; ++i)
                     $root.gtfs_api.RealtimeUpdate.encode(message.updates[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+            if (message.expireTimestamp != null && Object.hasOwnProperty.call(message, "expireTimestamp"))
+                writer.uint32(/* id 2, wireType 2 =*/18).string(message.expireTimestamp);
             return writer;
         };
 
@@ -116,6 +127,10 @@ export const gtfs_api = $root.gtfs_api = (() => {
                         if (!(message.updates && message.updates.length))
                             message.updates = [];
                         message.updates.push($root.gtfs_api.RealtimeUpdate.decode(reader, reader.uint32()));
+                        break;
+                    }
+                case 2: {
+                        message.expireTimestamp = reader.string();
                         break;
                     }
                 default:
@@ -162,6 +177,9 @@ export const gtfs_api = $root.gtfs_api = (() => {
                         return "updates." + error;
                 }
             }
+            if (message.expireTimestamp != null && message.hasOwnProperty("expireTimestamp"))
+                if (!$util.isString(message.expireTimestamp))
+                    return "expireTimestamp: string expected";
             return null;
         };
 
@@ -187,6 +205,8 @@ export const gtfs_api = $root.gtfs_api = (() => {
                     message.updates[i] = $root.gtfs_api.RealtimeUpdate.fromObject(object.updates[i]);
                 }
             }
+            if (object.expireTimestamp != null)
+                message.expireTimestamp = String(object.expireTimestamp);
             return message;
         };
 
@@ -205,11 +225,15 @@ export const gtfs_api = $root.gtfs_api = (() => {
             let object = {};
             if (options.arrays || options.defaults)
                 object.updates = [];
+            if (options.defaults)
+                object.expireTimestamp = "";
             if (message.updates && message.updates.length) {
                 object.updates = [];
                 for (let j = 0; j < message.updates.length; ++j)
                     object.updates[j] = $root.gtfs_api.RealtimeUpdate.toObject(message.updates[j], options);
             }
+            if (message.expireTimestamp != null && message.hasOwnProperty("expireTimestamp"))
+                object.expireTimestamp = message.expireTimestamp;
             return object;
         };
 
