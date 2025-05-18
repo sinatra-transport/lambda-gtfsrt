@@ -40,7 +40,7 @@ resource "aws_cloudwatch_event_target" "lambda_target_develop" {
   input = jsonencode({
     "gtfsrtUrl": "https://files.transport.act.gov.au/feeds/lightrail.pb",
     "destinationBucket": "sinatra-develop-api"
-    "ttl": 10
+    "ttl": 15
   })
 }
 
