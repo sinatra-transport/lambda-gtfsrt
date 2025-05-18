@@ -5,6 +5,7 @@
   "main": "index.ts",
   "type": "module",
   "scripts": {
+    "build": "npx tsc index.ts",
     "test": "npx tsx test.ts"
   },
   "author": "Emily McLean",
