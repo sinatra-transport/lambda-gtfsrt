@@ -3,7 +3,7 @@
     "target": "es2020",
     "strict": true,
     "preserveConstEnums": true,
-    "noEmit": true,
+    "outDir": "dist",
     "sourceMap": false,
     "module": "es6",
     "moduleResolution":"bundler",
