@@ -20,7 +20,7 @@ export class Uploader {
             ContentType: spec.mimeType,
         });
 
-        await s3.send(command)
+        await s3.send(command);
     }
 
 }

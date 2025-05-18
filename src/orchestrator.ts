@@ -49,7 +49,7 @@ export class Orchestrator {
     async _upload(specs: FileSpec[]) {
         for (const spec of specs) {
             console.log(`Uploading file ${spec.key} (total = ${specs.length})`)
-            this._uploader.upload(spec, this.params.destinationBucket)
+            await this._uploader.upload(spec, this.params.destinationBucket)
         }
     }
     
