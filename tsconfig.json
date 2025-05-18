@@ -1,20 +1,27 @@
 {
   "compilerOptions": {
-    "target": "es2020",
+    "target": "esnext",
     "strict": true,
     "preserveConstEnums": true,
     "outDir": "dist",
     "sourceMap": false,
-    "module": "es6",
+    "module": "esnext",
     "moduleResolution":"bundler",
     "esModuleInterop": true, 
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true, 
     "isolatedModules": true, 
+    "resolveJsonModule": true,
   },
+  "include": [
+    "./package.json",
+    "./index.ts",
+    "./src"
+  ],
   "exclude": [
     "node_modules", 
     "**/*.test.ts", 
+    "./test.ts",
     "gen-proto.sh",
     "test_data/*",
     "terraform/*"

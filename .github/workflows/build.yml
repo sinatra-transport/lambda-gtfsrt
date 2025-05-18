@@ -24,7 +24,6 @@ jobs:
           npm install --no-bin-links
           npm run build
           cp -r node_modules dist/node_modules
-          cp package.json dist
           (cd dist && zip -r ../lambda-gtfsrt.zip .)
       - uses: actions/upload-artifact@v4
         with:
