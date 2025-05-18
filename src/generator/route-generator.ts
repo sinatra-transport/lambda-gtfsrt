@@ -6,7 +6,8 @@ import { Generator } from "./generator.js";
 import groupBy from 'just-group-by';
 
 export class RouteGenerator extends Generator {
-    
+    static readonly staleDataThreshold = 10 * 60000;
+
     generate(
         feed: transit_realtime.FeedMessage, 
         index: trip_index.TripIndex,
@@ -14,6 +15,7 @@ export class RouteGenerator extends Generator {
     ): FileSpec[] {
         const routeTrips = groupBy(index.trips, (i) => i.routeId);
         var out = <FileSpec[]>[];
+        const stale = feed.header.timestamp != null ? this._isStale(new Date(Number(feed.header.timestamp))) : false;
 
         for (const routeId in routeTrips) {
             const tripIds = routeTrips[routeId].map((t) => t.tripId);
@@ -23,18 +25,29 @@ export class RouteGenerator extends Generator {
 
             const message = gtfs_api.RealtimeEndpoint.create(<gtfs_api.IRealtimeEndpoint>{
                 updates: updates.map((u) => {
-                    if (u.tripUpdate == null) return null;
+                    const nullMessage = <gtfs_api.IRealtimeUpdate>{
+                        tripId: u.tripUpdate!.trip.tripId,
+                        delay: null
+                    };
+
+                    if (stale) return nullMessage;
+                    if (u.tripUpdate == null) return nullMessage;
+                    if (
+                        u.tripUpdate.timestamp != null && 
+                        this._isStale(new Date(Number(u.tripUpdate.timestamp)))
+                    ) return nullMessage;
+                    
                     var delay = u.tripUpdate.delay;
                     if (delay == null || delay == 0) {
                         delay = u.tripUpdate?.stopTimeUpdate?.at(0)?.arrival?.delay ?? delay;
                     }
-                    if (delay == null || delay == 0) return null
+                    if (delay == null || delay == 0) return nullMessage;
 
                     return <gtfs_api.IRealtimeUpdate>{
                         tripId: u.tripUpdate!.trip.tripId,
                         delay: delay
-                    }
-                }).filter((u) => u != null),
+                    };
+                }),
                 expireTimestamp: params.ttl != null ? new Date(
                     new Date(new Date().toUTCString()).getTime() + params.ttl * 60000
                 ).toISOString() : null
@@ -48,6 +61,10 @@ export class RouteGenerator extends Generator {
         }
 
         return out;
+    }
+
+    _isStale(date: Date): boolean {
+        return (new Date(new Date().toUTCString()).getTime() - date.getTime()) > RouteGenerator.staleDataThreshold;
     }
 
 }
