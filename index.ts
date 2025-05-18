@@ -1,5 +1,5 @@
 import { Handler, Context } from 'aws-lambda';
-import { Orchestrator, OrchestratorParams } from './src/orchestrator';
+import { Orchestrator, OrchestratorParams } from './src/orchestrator.js';
 
 interface ScrapeEvent {
     gtfsrtUrl: string,

@@ -1,9 +1,8 @@
-import { RouteGenerator } from './generator/route-generator';
-import { Generator } from './generator/generator'
-import { transit_realtime } from './proto/gtfs-rt'
-import { Scraper } from './scraper'
-import { FileSpec, TripData } from './models';
-import { Uploader } from './uploader';
+import { RouteGenerator } from './generator/route-generator.js';
+import { Generator } from './generator/generator.js'
+import { Scraper } from './scraper.js'
+import { FileSpec, TripData } from './models.js';
+import { Uploader } from './uploader.js';
 
 export interface OrchestratorParams {
     gtfsrtUrl: string,

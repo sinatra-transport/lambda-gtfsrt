@@ -1,5 +1,5 @@
-import { transit_realtime } from "./proto/gtfs-rt"
-import { trip_index } from "./proto/trip-index"
+import { transit_realtime } from "./proto/gtfs-rt.js"
+import { trip_index } from "./proto/trip-index.js"
 
 export interface FileSpec {
     key: string

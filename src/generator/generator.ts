@@ -1,6 +1,6 @@
-import { transit_realtime } from '../proto/gtfs-rt';
-import { FileSpec } from '../models';
-import { trip_index } from '../proto/trip-index';
+import { transit_realtime } from '../proto/gtfs-rt.js';
+import { FileSpec } from '../models.js';
+import { trip_index } from '../proto/trip-index.js';
 
 export abstract class Generator {
     abstract generate(
