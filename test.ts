@@ -1,9 +1,9 @@
-import { Orchestrator, OrchestratorParams } from './src/orchestrator'
+import { Orchestrator } from './src/orchestrator'
 import { trip_index } from './src/proto/trip-index';
 import { Scraper } from './src/scraper';
 import fs from 'node:fs/promises';
 import { Uploader } from './src/uploader';
-import { FileSpec } from './src/models';
+import { FileSpec, OrchestratorParams } from './src/models';
 
 class LocalScraper extends Scraper {
     override async tripIndex(key?: string): Promise<trip_index.TripIndex> {

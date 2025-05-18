@@ -1,9 +1,11 @@
 import { Handler, Context } from 'aws-lambda';
-import { Orchestrator, OrchestratorParams } from './src/orchestrator.js';
+import { Orchestrator } from './src/orchestrator.js';
+import { OrchestratorParams } from './src/models.js';
 
 interface ScrapeEvent {
     gtfsrtUrl: string,
     destinationBucket: string
+    ttl?: number | undefined
 }
 
 export const handler: Handler<ScrapeEvent> = async (event: ScrapeEvent, context: Context) => {
@@ -11,7 +13,8 @@ export const handler: Handler<ScrapeEvent> = async (event: ScrapeEvent, context:
     await new Orchestrator(
         <OrchestratorParams>{
             gtfsrtUrl: event.gtfsrtUrl,
-            destinationBucket: event.destinationBucket
+            destinationBucket: event.destinationBucket,
+            ttl: event.ttl
         }
     ).run()
 };

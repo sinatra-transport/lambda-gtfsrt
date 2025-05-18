@@ -1,14 +1,17 @@
 import { transit_realtime } from "../proto/gtfs-rt.js";
-import { FileSpec } from "../models.js";
+import { FileSpec, OrchestratorParams } from "../models.js";
 import { trip_index } from "../proto/trip-index.js";
 import { gtfs_api } from "../proto/output.js";
 import { Generator } from "./generator.js";
 import groupBy from 'just-group-by';
 
 export class RouteGenerator extends Generator {
-    static readonly liveExpireDuration = 2 * 60000; // 2 minutes
-
-    generate(feed: transit_realtime.FeedMessage, index: trip_index.TripIndex): FileSpec[] {
+    
+    generate(
+        feed: transit_realtime.FeedMessage, 
+        index: trip_index.TripIndex,
+        params: OrchestratorParams
+    ): FileSpec[] {
         const routeTrips = groupBy(index.trips, (i) => i.routeId);
         var out = <FileSpec[]>[];
 
@@ -32,9 +35,9 @@ export class RouteGenerator extends Generator {
                         delay: delay
                     }
                 }).filter((u) => u != null),
-                expireTimestamp: new Date(
-                    new Date(new Date().toUTCString()).getTime() + RouteGenerator.liveExpireDuration
-                ).toISOString()
+                expireTimestamp: params.ttl != null ? new Date(
+                    new Date(new Date().toUTCString()).getTime() + params.ttl * 60000
+                ).toISOString() : null
             });
             
             out.push(<FileSpec>{

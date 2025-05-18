@@ -22,3 +22,29 @@ resource "aws_lambda_function" "lambda_gtfsrt" {
         aws_cloudwatch_log_group.cloudwatch_gtfsrt
     ]
 }
+
+resource "aws_cloudwatch_event_rule" "lambda_schedule" {
+  name = "lambda_gtfsrt_schedule"
+  description = "trigger lambda gtfsrt every 10 minutes"
+
+  schedule_expression = "rate(10 minutes)"
+}
+
+resource "aws_cloudwatch_event_target" "lambda_target" {
+  rule = aws_cloudwatch_event_rule.lambda_schedule.name
+  target_id = "SendToLambda"
+  arn = aws_lambda_function.lambda_gtfsrt.arn
+  input = jsonencode({
+    "gtfsrtUrl": "https://files.transport.act.gov.au/feeds/lightrail.pb",
+    "destinationBucket": "sinatra-develop-api"
+    "ttl": 20
+  })
+}
+
+resource "aws_lambda_permission" "allow_eventbridge" {
+  statement_id  = "AllowExecutionFromEventBridge"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_gtfsrt.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.lambda_schedule.arn
+}

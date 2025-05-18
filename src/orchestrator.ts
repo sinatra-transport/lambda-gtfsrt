@@ -1,13 +1,8 @@
 import { RouteGenerator } from './generator/route-generator.js';
 import { Generator } from './generator/generator.js'
 import { Scraper } from './scraper.js'
-import { FileSpec, TripData } from './models.js';
+import { FileSpec, OrchestratorParams, TripData } from './models.js';
 import { Uploader } from './uploader.js';
-
-export interface OrchestratorParams {
-    gtfsrtUrl: string,
-    destinationBucket: string
-}
 
 export class Orchestrator {
     readonly params: OrchestratorParams;
@@ -43,7 +38,7 @@ export class Orchestrator {
 
     async _generate(data: TripData): Promise<FileSpec[]> {
         console.log("Generating output files");
-        return this._generators.map((g) => g.generate(data.gtfsRt, data.tripIndex)).flat();
+        return this._generators.map((g) => g.generate(data.gtfsRt, data.tripIndex, this.params)).flat();
     }
 
     async _upload(specs: FileSpec[]) {
