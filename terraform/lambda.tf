@@ -14,6 +14,7 @@ resource "aws_lambda_function" "lambda_gtfsrt" {
     runtime = "nodejs22.x"
 
     memory_size = 128
+    timeout = 10
     architectures = [ "x86_64" ]
 
     depends_on = [
