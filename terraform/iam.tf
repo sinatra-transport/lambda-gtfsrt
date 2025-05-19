@@ -41,7 +41,9 @@ data "aws_iam_policy_document" "lambda_policy" {
 
     resources = [
       "${data.terraform_remote_state.main_infra.outputs.bucket_api_prod_arn}/canberra/v1/route/*/live.pb",
-      "${data.terraform_remote_state.main_infra.outputs.bucket_api_develop_arn}/canberra/v1/route/*/live.pb"
+      "${data.terraform_remote_state.main_infra.outputs.bucket_api_develop_arn}/canberra/v1/route/*/live.pb",
+      "${data.terraform_remote_state.main_infra.outputs.bucket_api_prod_arn}/canberra/v1/stop/*/live.pb",
+      "${data.terraform_remote_state.main_infra.outputs.bucket_api_develop_arn}/canberra/v1/stop/*/live.pb"
     ]
   }
 }
