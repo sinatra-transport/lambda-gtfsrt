@@ -59,7 +59,7 @@ resource "aws_cloudwatch_event_rule" "lambda_schedule_prod" {
   description = "trigger lambda gtfsrt every 2 minute for prod"
   state = "ENABLED"
 
-  schedule_expression = "rate(2 minute)"
+  schedule_expression = "rate(2 minutes)"
 }
 
 resource "aws_cloudwatch_event_target" "lambda_target_prod" {
