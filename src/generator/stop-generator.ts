@@ -4,11 +4,6 @@ import { trip_index } from "../proto/trip-index.js";
 import { gtfs_api } from "../proto/output.js";
 import { Generator } from "./generator.js";
 
-interface StopTrip {
-    stopId: string
-    tripIds: string[]
-}
-
 export class StopGenerator extends Generator {
 
     generate(
@@ -16,16 +11,20 @@ export class StopGenerator extends Generator {
         index: trip_index.TripIndex,
         params: OrchestratorParams
     ): FileSpec[] {
-        const stopIds = [...new Set(index.trips.flatMap((t) => t.stopIds ?? []))];
-        const stopTrips = stopIds.map((s) => <StopTrip>{ 
-            stopId: s,
-            tripIds: index.trips.filter((t) => s in (t.stopIds ?? [])).map((t) => t.tripId)
-        });
+        var stopTrips = new Map<string, string[]>();
+        for (const trip of index.trips) {
+            if (trip.stopIds == null) continue;
+            for (const stopId of trip.stopIds) {
+                const existing = stopTrips.get(stopId) ?? [];
+                stopTrips.set(stopId, [...existing, trip.tripId]);
+            }
+        }
+
         var out = <FileSpec[]>[];
 
-        for (const stopTrip of stopTrips) {
-            const stopId = stopTrip.stopId;
-            const tripIds = stopTrip.tripIds
+        for (const stopId of stopTrips.keys()) {
+            const tripIds = stopTrips.get(stopId);
+            if (tripIds == null) continue;
             
             const message = this._createMessage(
                 feed,
