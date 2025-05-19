@@ -3,6 +3,7 @@ import { Generator } from './generator/generator.js'
 import { Scraper } from './scraper.js'
 import { FileSpec, OrchestratorParams, TripData } from './models.js';
 import { Uploader } from './uploader.js';
+import { StopGenerator } from './generator/stop-generator.js';
 
 export class Orchestrator {
     readonly params: OrchestratorParams;
@@ -14,7 +15,10 @@ export class Orchestrator {
         params: OrchestratorParams, 
         scraper: Scraper = new Scraper(),
         uploader: Uploader = new Uploader(),
-        generators: Generator[] = [new RouteGenerator()],
+        generators: Generator[] = [
+            new RouteGenerator(),
+            new StopGenerator()
+        ],
     ) {
         this.params = params;
         this._scraper = scraper;
