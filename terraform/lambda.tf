@@ -14,7 +14,7 @@ resource "aws_lambda_function" "lambda_gtfsrt" {
     runtime = "nodejs22.x"
 
     memory_size = 128
-    timeout = 10
+    timeout = 20
     architectures = [ "x86_64" ]
 
     depends_on = [
@@ -56,10 +56,10 @@ resource "aws_lambda_permission" "allow_eventbridge_develop" {
 
 resource "aws_cloudwatch_event_rule" "lambda_schedule_prod" {
   name = "lambda_gtfsrt_schedule_prod"
-  description = "trigger lambda gtfsrt every 1 minute for prod"
+  description = "trigger lambda gtfsrt every 2 minute for prod"
   state = "ENABLED"
 
-  schedule_expression = "rate(1 minute)"
+  schedule_expression = "rate(2 minute)"
 }
 
 resource "aws_cloudwatch_event_target" "lambda_target_prod" {
@@ -69,7 +69,7 @@ resource "aws_cloudwatch_event_target" "lambda_target_prod" {
   input = jsonencode({
     "gtfsrtUrl": "https://files.transport.act.gov.au/feeds/lightrail.pb",
     "destinationBucket": "sinatra-api"
-    "ttl": 2
+    "ttl": 4
   })
 }
 
