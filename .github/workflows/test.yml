@@ -20,5 +20,5 @@ jobs:
         with:
           node-version: 22.x
       - run: |
-          npm install --no-bin-links
+          npm install --include=dev --no-bin-links
           npm run test
