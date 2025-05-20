@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "esnext",
     "strict": true,
+    "allowJs": true,
     "preserveConstEnums": true,
     "outDir": "dist",
     "sourceMap": false,
@@ -22,7 +23,7 @@
   ],
   "exclude": [
     "node_modules", 
-    "./test.ts",
+    "t.ts",
     "gen-proto.sh",
     "test_data/*",
     "terraform/*"

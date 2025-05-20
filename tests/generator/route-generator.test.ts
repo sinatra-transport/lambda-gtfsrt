@@ -1,20 +1,21 @@
-import { RouteGenerator } from '../../src/generator/route-generator.js';
-import { transit_realtime } from '../../src/proto/gtfs-rt.js';
-import { trip_index } from '../../src/proto/trip-index.js';
-// import { gtfs_api } from '../../src/proto/output.js';
-import { OrchestratorParams } from '../../src/models.js';
+import { RouteGenerator } from '../../src/generator/route-generator';
+import { transit_realtime } from '../../src/proto/gtfs-rt';
+import { trip_index } from '../../src/proto/trip-index';
+import { gtfs_api } from '../../src/proto/output';
+import { OrchestratorParams } from '../../src/models';
+
 
 // Mock Protobuf encode().finish()
-jest.mock('../proto/output.js', () => ({
-    gtfs_api: {
-        RealtimeEndpoint: {
-            encode: jest.fn(() => ({
-                finish: jest.fn(() => new Uint8Array([1, 2, 3]))
-            })),
-            create: jest.fn((input) => input) // just echo for testing
-        }
-    }
-}));
+// jest.mock('../proto/output.js', () => ({
+//     gtfs_api: {
+//         RealtimeEndpoint: {
+//             encode: jest.fn(() => ({
+//                 finish: jest.fn(() => new Uint8Array([1, 2, 3]))
+//             })),
+//             create: jest.fn((input) => input) // just echo for testing
+//         }
+//     }
+// }));
 
 describe('RouteGenerator', () => {
     const makeTripIndex = (): trip_index.TripIndex => (trip_index.TripIndex.create(<trip_index.ITripIndex>{
@@ -72,70 +73,70 @@ describe('RouteGenerator', () => {
         expect(output[1].key).toMatch(/route2\/live\.pb$/);
 
         // Check that encode was called with a message containing updates
-        // expect(gtfs_api.RealtimeEndpoint.encode).toHaveBeenCalledTimes(2);
-        // const allCalls = (gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls;
-        // expect(allCalls[0][0].updates).toHaveLength(2); // tripA and tripB
-        // expect(allCalls[1][0].updates).toHaveLength(1); // tripC
+        expect(gtfs_api.RealtimeEndpoint.encode).toHaveBeenCalledTimes(2);
+        const allCalls = (gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls;
+        expect(allCalls[0][0].updates).toHaveLength(2); // tripA and tripB
+        expect(allCalls[1][0].updates).toHaveLength(1); // tripC
     });
 
-    // it('skips entities with isDeleted = true or invalid tripUpdate', () => {
-    //     const now = Date.now();
-    //     const feed = makeFeed(now, [
-    //         { id: 'tripA', isDeleted: true }, // skipped
-    //         { id: 'tripB', isDeleted: false, tripUpdate: null }, // skipped
-    //         baseEntity('tripC', 100),
-    //     ]);
-    //     const generator = new RouteGenerator();
-    //     const output = generator.generate(feed, makeTripIndex(), params);
+    it('skips entities with isDeleted = true or invalid tripUpdate', () => {
+        const now = Date.now();
+        const feed = makeFeed(now, [
+            { id: 'tripA', isDeleted: true }, // skipped
+            { id: 'tripB', isDeleted: false, tripUpdate: null }, // skipped
+            baseEntity('tripC', 100),
+        ]);
+        const generator = new RouteGenerator();
+        const output = generator.generate(feed, makeTripIndex(), params);
 
-    //     expect(output).toHaveLength(2);
-    //     expect((gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[0][0].updates).toHaveLength(0);
-    //     expect((gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[1][0].updates).toHaveLength(1);
-    // });
+        expect(output).toHaveLength(2);
+        expect((gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[0][0].updates).toHaveLength(0);
+        expect((gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[1][0].updates).toHaveLength(1);
+    });
 
-    // it('treats stale trip updates as null delay', () => {
-    //     const past = Date.now() - (11 * 60000); // more than stale threshold
-    //     const feed = makeFeed(past, [
-    //         baseEntity('tripC', 100, past)
-    //     ]);
+    it('treats stale trip updates as null delay', () => {
+        const past = Date.now() - (11 * 60000); // more than stale threshold
+        const feed = makeFeed(past, [
+            baseEntity('tripC', 100, past)
+        ]);
 
-    //     const generator = new RouteGenerator();
-    //     const output = generator.generate(feed, makeTripIndex(), params);
+        const generator = new RouteGenerator();
+        const output = generator.generate(feed, makeTripIndex(), params);
 
-    //     const firstCall = (gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[1][0];
-    //     expect(firstCall.updates[0].delay).toBeNull();
-    // });
+        const firstCall = (gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[1][0];
+        expect(firstCall.updates[0].delay).toBeNull();
+    });
 
-    // it('handles zero and null delays correctly', () => {
-    //     const now = Date.now();
-    //     const feed = makeFeed(now, [
-    //         baseEntity('tripA', 0),
-    //         baseEntity('tripB', null),
-    //         baseEntity('tripC', 30),
-    //     ]);
+    it('handles zero and null delays correctly', () => {
+        const now = Date.now();
+        const feed = makeFeed(now, [
+            baseEntity('tripA', 0),
+            baseEntity('tripB', null),
+            baseEntity('tripC', 30),
+        ]);
 
-    //     const generator = new RouteGenerator();
-    //     const output = generator.generate(feed, makeTripIndex(), params);
+        const generator = new RouteGenerator();
+        const output = generator.generate(feed, makeTripIndex(), params);
 
-    //     const updatesRoute1 = (gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[0][0].updates;
-    //     expect(updatesRoute1).toHaveLength(2);
-    //     expect(updatesRoute1[0].delay).toBeNull(); // tripA
-    //     expect(updatesRoute1[1].delay).toBeNull(); // tripB
+        const updatesRoute1 = (gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[0][0].updates;
+        expect(updatesRoute1).toHaveLength(2);
+        expect(updatesRoute1[0].delay).toBeNull(); // tripA
+        expect(updatesRoute1[1].delay).toBeNull(); // tripB
 
-    //     const updatesRoute2 = (gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[1][0].updates;
-    //     expect(updatesRoute2[0].delay).toBe(30); // tripC
-    // });
+        const updatesRoute2 = (gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[1][0].updates;
+        expect(updatesRoute2[0].delay).toBe(30); // tripC
+    });
 
-    // it('adds expireTimestamp if ttl is specified', () => {
-    //     const now = Date.now();
-    //     const feed = makeFeed(now, [
-    //         baseEntity('tripC', 45)
-    //     ]);
+    it('adds expireTimestamp if ttl is specified', () => {
+        const now = Date.now();
+        const feed = makeFeed(now, [
+            baseEntity('tripC', 45)
+        ]);
 
-    //     const generator = new RouteGenerator();
-    //     const output = generator.generate(feed, makeTripIndex(), params);
+        const generator = new RouteGenerator();
+        const output = generator.generate(feed, makeTripIndex(), params);
 
-    //     const call = (gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[1][0];
-    //     expect(call.expireTimestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
-    // });
+        const call = (gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[1][0];
+        expect(call.expireTimestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    });
 });

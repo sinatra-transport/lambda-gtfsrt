@@ -1,7 +1,7 @@
-import { transit_realtime } from '../proto/gtfs-rt.js';
-import { FileSpec, OrchestratorParams } from '../models.js';
-import { trip_index } from '../proto/trip-index.js';
-import { gtfs_api } from '../proto/output.js';
+import { transit_realtime } from '../proto/gtfs-rt';
+import { FileSpec, OrchestratorParams } from '../models';
+import { trip_index } from '../proto/trip-index';
+import { gtfs_api } from '../proto/output';
 
 export abstract class Generator {
     static readonly staleDataThreshold = 10 * 60000;
