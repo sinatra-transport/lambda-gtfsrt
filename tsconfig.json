@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "esnext",
     "strict": true,
+    "allowJs": true,
     "preserveConstEnums": true,
     "outDir": "dist",
     "sourceMap": false,
@@ -12,6 +13,7 @@
     "forceConsistentCasingInFileNames": true, 
     "isolatedModules": true, 
     "resolveJsonModule": true,
+    "types": ["jest", "node"]
   },
   "include": [
     "./package.json",
@@ -20,10 +22,10 @@
   ],
   "exclude": [
     "node_modules", 
-    "**/*.test.ts", 
-    "./test.ts",
+    "t.ts",
     "gen-proto.sh",
     "test_data/*",
-    "terraform/*"
+    "terraform/*",
+    "tests/**/*.test.ts"
   ]
 }

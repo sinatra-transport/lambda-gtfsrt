@@ -1,8 +1,8 @@
-import { transit_realtime } from "../proto/gtfs-rt.js";
-import { FileSpec, OrchestratorParams } from "../models.js";
-import { trip_index } from "../proto/trip-index.js";
-import { gtfs_api } from "../proto/output.js";
-import { Generator } from "./generator.js";
+import { transit_realtime } from "../proto/gtfs-rt";
+import { FileSpec, OrchestratorParams } from "../models";
+import { trip_index } from "../proto/trip-index";
+import { gtfs_api } from "../proto/output";
+import { Generator } from "./generator";
 import groupBy from 'just-group-by';
 
 export class RouteGenerator extends Generator {
@@ -21,7 +21,7 @@ export class RouteGenerator extends Generator {
                 feed,
                 params,
                 tripIds
-            )
+            );
             
             out.push(<FileSpec>{
                 key: `canberra/v1/route/${routeId}/live.pb`,

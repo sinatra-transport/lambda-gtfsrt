@@ -21,11 +21,13 @@ class LocalUploader extends Uploader {
     }
 }
 
-new Orchestrator(
-    <OrchestratorParams>{
-        gtfsrtUrl: "https://files.transport.act.gov.au/feeds/lightrail.pb",
-        destinationBucket: "bucket"
-    },
-    new LocalScraper(),
-    new LocalUploader()
-).run()
+const test = () => {
+    new Orchestrator(
+        <OrchestratorParams>{
+            gtfsrtUrl: "https://files.transport.act.gov.au/feeds/lightrail.pb",
+            destinationBucket: "bucket"
+        },
+        new LocalScraper(),
+        new LocalUploader()
+    ).run()
+}

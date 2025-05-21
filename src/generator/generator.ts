@@ -1,7 +1,7 @@
-import { transit_realtime } from '../proto/gtfs-rt.js';
-import { FileSpec, OrchestratorParams } from '../models.js';
-import { trip_index } from '../proto/trip-index.js';
-import { gtfs_api } from '../proto/output.js';
+import { transit_realtime } from '../proto/gtfs-rt';
+import { FileSpec, OrchestratorParams } from '../models';
+import { trip_index } from '../proto/trip-index';
+import { gtfs_api } from '../proto/output';
 
 export abstract class Generator {
     static readonly staleDataThreshold = 10 * 60000;
@@ -18,10 +18,10 @@ export abstract class Generator {
         params: OrchestratorParams,
         tripIds: string[]
     ): gtfs_api.RealtimeEndpoint {
-        const stale = feed.header.timestamp != null ? this._isStale(new Date(Number(feed.header.timestamp))) : false;
+        const stale = feed.header.timestamp != null ? this._isStale(new Date(Number(feed.header.timestamp) * 1000)) : false;
 
         const updates = feed.entity.filter((e) => 
-                e.isDeleted !== true && e.tripUpdate?.trip?.tripId != null && e.tripUpdate?.trip?.tripId in tripIds
+                e.isDeleted !== true && e.tripUpdate?.trip?.tripId != null && tripIds.includes(e.tripUpdate?.trip?.tripId)
         );
 
         return gtfs_api.RealtimeEndpoint.create(<gtfs_api.IRealtimeEndpoint>{

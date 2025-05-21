@@ -1,5 +1,5 @@
-import { transit_realtime } from "./proto/gtfs-rt.js"
-import { trip_index } from "./proto/trip-index.js"
+import { transit_realtime } from "./proto/gtfs-rt"
+import { trip_index } from "./proto/trip-index"
 
 export interface OrchestratorParams {
     gtfsrtUrl: string,
