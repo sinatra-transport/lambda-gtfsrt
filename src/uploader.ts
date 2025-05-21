@@ -1,5 +1,5 @@
 import { PutObjectCommand, PutObjectRequest, S3Client, S3ClientConfig } from "@aws-sdk/client-s3";
-import { FileSpec } from "./models";
+import { FileSpec } from "./models.js";
 import { Buffer } from "node:buffer";
 
 export class Uploader {
