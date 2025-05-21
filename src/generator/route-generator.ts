@@ -21,7 +21,7 @@ export class RouteGenerator extends Generator {
                 feed,
                 params,
                 tripIds
-            )
+            );
             
             out.push(<FileSpec>{
                 key: `canberra/v1/route/${routeId}/live.pb`,

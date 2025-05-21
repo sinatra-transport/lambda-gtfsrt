@@ -4,19 +4,6 @@ import { trip_index } from '../../src/proto/trip-index';
 import { gtfs_api } from '../../src/proto/output';
 import { OrchestratorParams } from '../../src/models';
 
-
-// Mock Protobuf encode().finish()
-// jest.mock('../proto/output.js', () => ({
-//     gtfs_api: {
-//         RealtimeEndpoint: {
-//             encode: jest.fn(() => ({
-//                 finish: jest.fn(() => new Uint8Array([1, 2, 3]))
-//             })),
-//             create: jest.fn((input) => input) // just echo for testing
-//         }
-//     }
-// }));
-
 describe('RouteGenerator', () => {
     const makeTripIndex = (): trip_index.TripIndex => (trip_index.TripIndex.create(<trip_index.ITripIndex>{
         trips: [
@@ -71,12 +58,9 @@ describe('RouteGenerator', () => {
         expect(output).toHaveLength(2);
         expect(output[0].key).toMatch(/route1\/live\.pb$/);
         expect(output[1].key).toMatch(/route2\/live\.pb$/);
-
-        // Check that encode was called with a message containing updates
-        expect(gtfs_api.RealtimeEndpoint.encode).toHaveBeenCalledTimes(2);
-        const allCalls = (gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls;
-        expect(allCalls[0][0].updates).toHaveLength(2); // tripA and tripB
-        expect(allCalls[1][0].updates).toHaveLength(1); // tripC
+        
+        expect(gtfs_api.RealtimeEndpoint.decode(output[0].contents).updates).toHaveLength(2);
+        expect(gtfs_api.RealtimeEndpoint.decode(output[1].contents).updates).toHaveLength(1);
     });
 
     it('skips entities with isDeleted = true or invalid tripUpdate', () => {
@@ -90,8 +74,8 @@ describe('RouteGenerator', () => {
         const output = generator.generate(feed, makeTripIndex(), params);
 
         expect(output).toHaveLength(2);
-        expect((gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[0][0].updates).toHaveLength(0);
-        expect((gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[1][0].updates).toHaveLength(1);
+        expect(gtfs_api.RealtimeEndpoint.decode(output[0].contents).updates).toHaveLength(0);
+        expect(gtfs_api.RealtimeEndpoint.decode(output[1].contents).updates).toHaveLength(1);
     });
 
     it('treats stale trip updates as null delay', () => {
@@ -103,8 +87,9 @@ describe('RouteGenerator', () => {
         const generator = new RouteGenerator();
         const output = generator.generate(feed, makeTripIndex(), params);
 
-        const firstCall = (gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[1][0];
-        expect(firstCall.updates[0].delay).toBeNull();
+        expect(output).toHaveLength(2);
+        const decodedOutput = gtfs_api.RealtimeEndpoint.decode(output[1].contents);
+        expect(decodedOutput.updates[0]).not.toHaveProperty('delay', null);
     });
 
     it('handles zero and null delays correctly', () => {
@@ -118,12 +103,12 @@ describe('RouteGenerator', () => {
         const generator = new RouteGenerator();
         const output = generator.generate(feed, makeTripIndex(), params);
 
-        const updatesRoute1 = (gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[0][0].updates;
+        const updatesRoute1 = gtfs_api.RealtimeEndpoint.decode(output[0].contents).updates;
         expect(updatesRoute1).toHaveLength(2);
-        expect(updatesRoute1[0].delay).toBeNull(); // tripA
-        expect(updatesRoute1[1].delay).toBeNull(); // tripB
+        expect(updatesRoute1[0].delay).not.toHaveProperty('delay', null); // tripA
+        expect(updatesRoute1[1].delay).not.toHaveProperty('delay', null); // tripB
 
-        const updatesRoute2 = (gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[1][0].updates;
+        const updatesRoute2 = gtfs_api.RealtimeEndpoint.decode(output[1].contents).updates;
         expect(updatesRoute2[0].delay).toBe(30); // tripC
     });
 
@@ -136,7 +121,7 @@ describe('RouteGenerator', () => {
         const generator = new RouteGenerator();
         const output = generator.generate(feed, makeTripIndex(), params);
 
-        const call = (gtfs_api.RealtimeEndpoint.encode as jest.Mock).mock.calls[1][0];
+        const call = gtfs_api.RealtimeEndpoint.decode(output[1].contents);
         expect(call.expireTimestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
     });
 });
