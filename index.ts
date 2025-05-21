@@ -5,7 +5,9 @@ import { OrchestratorParams } from './src/models.js';
 interface ScrapeEvent {
     gtfsrtUrl: string,
     destinationBucket: string
-    ttl?: number | undefined
+    ttl?: number | undefined,
+    indexBucket?: string | undefined,
+    indexFile?: string | undefined,
 }
 
 export const handler: Handler<ScrapeEvent> = async (event: ScrapeEvent, context: Context) => {
@@ -14,7 +16,9 @@ export const handler: Handler<ScrapeEvent> = async (event: ScrapeEvent, context:
         <OrchestratorParams>{
             gtfsrtUrl: event.gtfsrtUrl,
             destinationBucket: event.destinationBucket,
-            ttl: event.ttl
+            ttl: event.ttl,
+            indexBucket: event.indexBucket ?? "sinatra-private",
+            indexFile: event.indexFile ?? "trip-index.pb"
         }
     ).run()
 };

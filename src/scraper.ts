@@ -34,14 +34,14 @@ export class Scraper {
         return transit_realtime.FeedMessage.decode(response);
     }
 
-    async tripIndex(key: string = "trip-index.pb"): Promise<trip_index.TripIndex> {
+    async tripIndex(bucket: string, key: string): Promise<trip_index.TripIndex> {
         console.log(`Fetching trip-index`);
         const s3 = new S3Client(<S3ClientConfig>{
             region: "ap-southeast-2"
         });
 
         const command = new GetObjectCommand(<GetObjectRequest>{
-            Bucket: "sinatra-private",
+            Bucket: bucket,
             Key: key
         });
 

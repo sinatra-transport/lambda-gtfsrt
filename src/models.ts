@@ -4,7 +4,9 @@ import { trip_index } from "./proto/trip-index.js"
 export interface OrchestratorParams {
     gtfsrtUrl: string,
     destinationBucket: string
-    ttl?: number | undefined
+    ttl?: number | undefined,
+    indexBucket: string,
+    indexFile: string,
 }
 
 export interface FileSpec {

@@ -36,7 +36,10 @@ export class Orchestrator {
         console.log("Fetching required data");
         return <TripData>{
             gtfsRt: await this._scraper.gtfsRt(this.params.gtfsrtUrl),
-            tripIndex: await this._scraper.tripIndex()
+            tripIndex: await this._scraper.tripIndex(
+                this.params.indexBucket,
+                this.params.indexFile
+            )
         }
     }
 

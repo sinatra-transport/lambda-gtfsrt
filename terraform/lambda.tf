@@ -39,8 +39,10 @@ resource "aws_cloudwatch_event_target" "lambda_target_develop" {
   arn = aws_lambda_function.lambda_gtfsrt.arn
   input = jsonencode({
     "gtfsrtUrl": "https://files.transport.act.gov.au/feeds/lightrail.pb",
-    "destinationBucket": "sinatra-develop-api"
-    "ttl": 15
+    "destinationBucket": data.terraform_remote_state.main_infra.outputs.bucket_api_develop_name
+    "ttl": 15,
+    "indexBucket": data.terraform_remote_state.main_infra.outputs.bucket_private_name,
+    "indexFile": "trip-index.pb"
   })
 }
 
@@ -68,8 +70,10 @@ resource "aws_cloudwatch_event_target" "lambda_target_prod" {
   arn = aws_lambda_function.lambda_gtfsrt.arn
   input = jsonencode({
     "gtfsrtUrl": "https://files.transport.act.gov.au/feeds/lightrail.pb",
-    "destinationBucket": "sinatra-api"
-    "ttl": 4
+    "destinationBucket": data.terraform_remote_state.main_infra.outputs.bucket_api_prod_name
+    "ttl": 4,
+    "indexBucket": data.terraform_remote_state.main_infra.outputs.bucket_private_name,
+    "indexFile": "trip-index.pb"
   })
 }
 
