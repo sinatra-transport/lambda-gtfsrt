@@ -1,5 +1,5 @@
-import { transit_realtime } from './proto/gtfs-rt'
-import { trip_index } from './proto/trip-index';
+import { transit_realtime } from './proto/gtfs-rt.js'
+import { trip_index } from './proto/trip-index.js';
 import { S3Client, S3ClientConfig, GetObjectCommand, GetObjectRequest } from '@aws-sdk/client-s3';
 import { request } from 'https';
 import { IncomingMessage } from 'http';

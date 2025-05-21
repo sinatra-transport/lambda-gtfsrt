@@ -1,9 +1,9 @@
-import { RouteGenerator } from './generator/route-generator';
-import { Generator } from './generator/generator'
-import { Scraper } from './scraper'
-import { FileSpec, OrchestratorParams, TripData } from './models';
-import { Uploader } from './uploader';
-import { StopGenerator } from './generator/stop-generator';
+import { RouteGenerator } from './generator/route-generator.js';
+import { Generator } from './generator/generator.js'
+import { Scraper } from './scraper.js'
+import { FileSpec, OrchestratorParams, TripData } from './models.js';
+import { Uploader } from './uploader.js';
+import { StopGenerator } from './generator/stop-generator.js';
 
 export class Orchestrator {
     readonly params: OrchestratorParams;

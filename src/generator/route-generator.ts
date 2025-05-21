@@ -1,8 +1,8 @@
-import { transit_realtime } from "../proto/gtfs-rt";
-import { FileSpec, OrchestratorParams } from "../models";
-import { trip_index } from "../proto/trip-index";
-import { gtfs_api } from "../proto/output";
-import { Generator } from "./generator";
+import { transit_realtime } from "../proto/gtfs-rt.js";
+import { FileSpec, OrchestratorParams } from "../models.js";
+import { trip_index } from "../proto/trip-index.js";
+import { gtfs_api } from "../proto/output.js";
+import { Generator } from "./generator.js";
 import groupBy from 'just-group-by';
 
 export class RouteGenerator extends Generator {

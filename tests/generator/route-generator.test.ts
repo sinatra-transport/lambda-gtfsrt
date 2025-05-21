@@ -1,8 +1,8 @@
-import { RouteGenerator } from '../../src/generator/route-generator';
-import { transit_realtime } from '../../src/proto/gtfs-rt';
-import { trip_index } from '../../src/proto/trip-index';
-import { gtfs_api } from '../../src/proto/output';
-import { OrchestratorParams } from '../../src/models';
+import { RouteGenerator } from '../../dist/src/generator/route-generator';
+import { transit_realtime } from '../../dist/src/proto/gtfs-rt';
+import { trip_index } from '../../dist/src/proto/trip-index';
+import { gtfs_api } from '../../dist/src/proto/output';
+import { OrchestratorParams } from '../../dist/src/models';
 
 describe('RouteGenerator', () => {
     const makeTripIndex = (): trip_index.TripIndex => (trip_index.TripIndex.create(<trip_index.ITripIndex>{
