@@ -18,14 +18,14 @@
   "include": [
     "./package.json",
     "./index.ts",
-    "./src",
-    "tests/**/*.test.ts"
+    "./src"
   ],
   "exclude": [
     "node_modules", 
     "t.ts",
     "gen-proto.sh",
     "test_data/*",
-    "terraform/*"
+    "terraform/*",
+    "tests/**/*.test.ts"
   ]
 }
