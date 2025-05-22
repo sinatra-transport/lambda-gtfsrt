@@ -92,7 +92,7 @@ describe('StopGenerator', () => {
 
         expect(output).toHaveLength(3);
         const decodedOutput = gtfs_api.RealtimeEndpoint.decode(output[2].contents);
-        expect(decodedOutput.updates[0]).not.toHaveProperty('delay', null);
+        expect(decodedOutput.updates).toHaveLength(0);
     });
 
 });

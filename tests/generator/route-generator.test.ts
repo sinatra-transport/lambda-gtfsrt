@@ -89,7 +89,7 @@ describe('RouteGenerator', () => {
 
         expect(output).toHaveLength(2);
         const decodedOutput = gtfs_api.RealtimeEndpoint.decode(output[1].contents);
-        expect(decodedOutput.updates[0]).not.toHaveProperty('delay', null);
+        expect(decodedOutput.updates).toHaveLength(0);
     });
 
     it('handles zero and null delays correctly', () => {
@@ -104,9 +104,7 @@ describe('RouteGenerator', () => {
         const output = generator.generate(feed, makeTripIndex(), params);
 
         const updatesRoute1 = gtfs_api.RealtimeEndpoint.decode(output[0].contents).updates;
-        expect(updatesRoute1).toHaveLength(2);
-        expect(updatesRoute1[0].delay).toBe(0); // tripA
-        expect(updatesRoute1[1].delay).not.toHaveProperty('delay', null); // tripB
+        expect(updatesRoute1).toHaveLength(0);
 
         const updatesRoute2 = gtfs_api.RealtimeEndpoint.decode(output[1].contents).updates;
         expect(updatesRoute2[0].delay).toBe(30); // tripC
