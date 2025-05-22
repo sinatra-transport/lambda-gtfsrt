@@ -26,29 +26,24 @@ export abstract class Generator {
 
         return gtfs_api.RealtimeEndpoint.create(<gtfs_api.IRealtimeEndpoint>{
             updates: updates.map((u) => {
-                const nullMessage = <gtfs_api.IRealtimeUpdate>{
-                    tripId: u.tripUpdate!.trip.tripId,
-                    delay: null
-                };
-
-                if (stale) return nullMessage;
-                if (u.tripUpdate == null) return nullMessage;
+                if (stale) return null;
+                if (u.tripUpdate == null) return null;
                 if (
                     u.tripUpdate.timestamp != null && 
                     this._isStale(new Date(Number(u.tripUpdate.timestamp)))
-                ) return nullMessage;
+                ) return null;
                 
                 var delay = u.tripUpdate.delay;
                 if (delay == null || delay == 0) {
                     delay = u.tripUpdate?.stopTimeUpdate?.at(0)?.arrival?.delay ?? delay;
                 }
-                if (delay == null || delay == 0) return nullMessage;
+                if (delay == null || delay == 0) return null;
 
                 return <gtfs_api.IRealtimeUpdate>{
                     tripId: u.tripUpdate!.trip.tripId,
                     delay: delay
                 };
-            }),
+            }).filter((u) => u != null),
             expireTimestamp: params.ttl != null ? new Date(
                 new Date(new Date().toUTCString()).getTime() + params.ttl * 60000
             ).toISOString() : null
