@@ -42,7 +42,8 @@ resource "aws_cloudwatch_event_target" "lambda_target_develop" {
     "destinationBucket": data.terraform_remote_state.main_infra.outputs.bucket_api_develop_name
     "ttl": 15,
     "indexBucket": data.terraform_remote_state.main_infra.outputs.bucket_private_name,
-    "indexFile": "trip-index.pb"
+    "indexFile": "trip-index.pb",
+    "permitStale": true
   })
 }
 
