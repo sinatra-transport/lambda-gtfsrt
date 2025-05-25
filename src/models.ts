@@ -7,6 +7,7 @@ export interface OrchestratorParams {
     ttl?: number | undefined,
     indexBucket: string,
     indexFile: string,
+    permitStale: boolean
 }
 
 export interface FileSpec {
