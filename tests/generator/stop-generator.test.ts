@@ -42,7 +42,8 @@ describe('StopGenerator', () => {
     const params: OrchestratorParams = {
         gtfsrtUrl: 'http://test',
         destinationBucket: 'bucket',
-        ttl: 5
+        ttl: 5,
+        permitStale: false
     };
 
     it('generates a FileSpec per stop', () => {
@@ -93,6 +94,26 @@ describe('StopGenerator', () => {
         expect(output).toHaveLength(3);
         const decodedOutput = gtfs_api.RealtimeEndpoint.decode(output[2].contents);
         expect(decodedOutput.updates).toHaveLength(0);
+    });
+
+    it('permits stale trip updates', () => {
+        const past = Date.now() - (11 * 60000); // more than stale threshold
+        const feed = makeFeed(past, [
+            baseEntity('tripC', 100, past)
+        ]);
+
+        const generator = new StopGenerator();
+        const output = generator.generate(
+            feed, 
+            makeTripIndex(), 
+            {
+                ...params, permitStale: true
+            }
+        );
+
+        expect(output).toHaveLength(3);
+        const decodedOutput = gtfs_api.RealtimeEndpoint.decode(output[2].contents);
+        expect(decodedOutput.updates).toHaveLength(1);
     });
 
 });

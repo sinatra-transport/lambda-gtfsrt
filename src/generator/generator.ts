@@ -18,10 +18,15 @@ export abstract class Generator {
         params: OrchestratorParams,
         tripIds: string[]
     ): gtfs_api.RealtimeEndpoint {
-        const stale = feed.header.timestamp != null ? this._isStale(new Date(Number(feed.header.timestamp) * 1000)) : false;
+        const stale = 
+            feed.header.timestamp != null && 
+            this._isStale(new Date(Number(feed.header.timestamp) * 1000)) && 
+            !params.permitStale;
 
         const updates = feed.entity.filter((e) => 
-                e.isDeleted !== true && e.tripUpdate?.trip?.tripId != null && tripIds.includes(e.tripUpdate?.trip?.tripId)
+                e.isDeleted !== true && 
+                e.tripUpdate?.trip?.tripId != null && 
+                tripIds.includes(e.tripUpdate?.trip?.tripId)
         );
 
         return gtfs_api.RealtimeEndpoint.create(<gtfs_api.IRealtimeEndpoint>{
@@ -30,7 +35,8 @@ export abstract class Generator {
                 if (u.tripUpdate == null) return null;
                 if (
                     u.tripUpdate.timestamp != null && 
-                    this._isStale(new Date(Number(u.tripUpdate.timestamp)))
+                    this._isStale(new Date(Number(u.tripUpdate.timestamp))) &&
+                    !params.permitStale
                 ) return null;
                 
                 var delay = u.tripUpdate.delay;

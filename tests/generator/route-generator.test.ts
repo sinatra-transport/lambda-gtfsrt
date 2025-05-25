@@ -3,6 +3,7 @@ import { transit_realtime } from '../../dist/src/proto/gtfs-rt';
 import { trip_index } from '../../dist/src/proto/trip-index';
 import { gtfs_api } from '../../dist/src/proto/output';
 import { OrchestratorParams } from '../../dist/src/models';
+import { StopGenerator } from '../../dist/src/generator/stop-generator';
 
 describe('RouteGenerator', () => {
     const makeTripIndex = (): trip_index.TripIndex => (trip_index.TripIndex.create(<trip_index.ITripIndex>{
@@ -42,7 +43,8 @@ describe('RouteGenerator', () => {
     const params: OrchestratorParams = {
         gtfsrtUrl: 'http://test',
         destinationBucket: 'bucket',
-        ttl: 5
+        ttl: 5,
+        permitStale: false
     };
 
     it('generates a FileSpec per route', () => {
@@ -121,5 +123,25 @@ describe('RouteGenerator', () => {
 
         const call = gtfs_api.RealtimeEndpoint.decode(output[1].contents);
         expect(call.expireTimestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    });
+
+    it('permits stale trip updates', () => {
+        const past = Date.now() - (11 * 60000); // more than stale threshold
+        const feed = makeFeed(past, [
+            baseEntity('tripC', 100, past)
+        ]);
+
+        const generator = new RouteGenerator();
+        const output = generator.generate(
+            feed, 
+            makeTripIndex(), 
+            {
+                ...params, permitStale: true
+            }
+        );
+
+        expect(output).toHaveLength(2);
+        const decodedOutput = gtfs_api.RealtimeEndpoint.decode(output[1].contents);
+        expect(decodedOutput.updates).toHaveLength(1);
     });
 });

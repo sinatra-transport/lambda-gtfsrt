@@ -8,6 +8,7 @@ interface ScrapeEvent {
     ttl?: number | undefined,
     indexBucket?: string | undefined,
     indexFile?: string | undefined,
+    permitStale?: boolean | undefined,
 }
 
 export const handler: Handler<ScrapeEvent> = async (event: ScrapeEvent, context: Context) => {
@@ -18,7 +19,8 @@ export const handler: Handler<ScrapeEvent> = async (event: ScrapeEvent, context:
             destinationBucket: event.destinationBucket,
             ttl: event.ttl,
             indexBucket: event.indexBucket ?? "sinatra-private",
-            indexFile: event.indexFile ?? "trip-index.pb"
+            indexFile: event.indexFile ?? "trip-index.pb",
+            permitStale: event.permitStale === true
         }
     ).run()
 };
