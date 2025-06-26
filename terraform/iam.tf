@@ -54,7 +54,8 @@ data "aws_iam_policy_document" "lambda_policy" {
     ]
 
     resources = [
-      ""
+      "arn:aws:ssm:ap-southeast-2:859915817480:parameter/sinatra/transportcanberra/username",
+      "arn:aws:ssm:ap-southeast-2:859915817480:parameter/sinatra/transportcanberra/password"
     ]
   }
 }

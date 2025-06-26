@@ -39,8 +39,8 @@ export class Scraper {
     async _fetchAsUint8Array(
         url: string
     ): Promise<Uint8Array> {
-        const username = await this._secret("sinatra/transportcanberra/username");
-        const password = await this._secret("sinatra/transportcanberra/password");
+        const username = await this._secret("/sinatra/transportcanberra/username");
+        const password = await this._secret("/sinatra/transportcanberra/password");
         const authString = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
         return new Promise((resolve, reject) => {
             request(
