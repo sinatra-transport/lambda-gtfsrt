@@ -13,7 +13,7 @@ resource "aws_cloudwatch_event_target" "lambda_target_develop" {
   target_id = "SendToLambda"
   arn = aws_lambda_function.lambda_gtfsrt.arn
   input = jsonencode({
-    "gtfsrtUrl": "https://files.transport.act.gov.au/feeds/lightrail.pb",
+    "gtfsrtUrl": "https://transport.api.act.gov.au/data/gtfs/v2/vehicle-positions.pb",
     "destinationBucket": data.terraform_remote_state.main_infra.outputs.bucket_api_develop_name
     "ttl": 15,
     "indexBucket": data.terraform_remote_state.main_infra.outputs.bucket_private_name,
@@ -45,7 +45,7 @@ resource "aws_cloudwatch_event_target" "lambda_target_prod" {
   target_id = "SendToLambda"
   arn = aws_lambda_function.lambda_gtfsrt.arn
   input = jsonencode({
-    "gtfsrtUrl": "https://files.transport.act.gov.au/feeds/lightrail.pb",
+    "gtfsrtUrl": "https://transport.api.act.gov.au/data/gtfs/v2/vehicle-positions.pb",
     "destinationBucket": data.terraform_remote_state.main_infra.outputs.bucket_api_prod_name
     "ttl": 4,
     "indexBucket": data.terraform_remote_state.main_infra.outputs.bucket_private_name,
