@@ -28,7 +28,7 @@ resource "aws_lambda_function" "lambda_gtfsrt" {
 resource "aws_cloudwatch_event_rule" "lambda_schedule_develop" {
   name = "lambda_gtfsrt_schedule_develop"
   description = "trigger lambda gtfsrt every 10 minutes for develop"
-  state = "ENABLED"
+  state = "DISABLED"
 
   schedule_expression = "rate(10 minutes)"
 }
@@ -60,7 +60,7 @@ resource "aws_lambda_permission" "allow_eventbridge_develop" {
 resource "aws_cloudwatch_event_rule" "lambda_schedule_prod" {
   name = "lambda_gtfsrt_schedule_prod"
   description = "trigger lambda gtfsrt every 2 minute for prod"
-  state = "ENABLED"
+  state = "DISABLED"
 
   schedule_expression = "rate(2 minutes)"
 }
