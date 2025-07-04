@@ -14,7 +14,7 @@ export class StopGenerator extends Generator {
         console.log("Starting stop generation");
         var out = <FileSpec[]>[];
 
-        for (const stopId of Object.keys(index.tripsByStop)) {
+        for (const stopId in index.tripsByStop) {
             const tripIds = index.tripsByStop[stopId].tripId;
             if (tripIds == null) continue;
             

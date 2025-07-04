@@ -4,6 +4,7 @@ import { Scraper } from './scraper.js'
 import { FileSpec, OrchestratorParams, TripData } from './models.js';
 import { Uploader } from './uploader.js';
 import { StopGenerator } from './generator/stop-generator.js';
+import { S3Client, S3ClientConfig } from "@aws-sdk/client-s3";
 
 export class Orchestrator {
     readonly params: OrchestratorParams;
@@ -17,7 +18,7 @@ export class Orchestrator {
         uploader: Uploader = new Uploader(),
         generators: Generator[] = [
             new RouteGenerator(),
-            new StopGenerator()
+            // new StopGenerator()
         ],
     ) {
         this.params = params;
@@ -50,10 +51,14 @@ export class Orchestrator {
 
     async _upload(specs: FileSpec[]) {
         console.log("Starting upload");
+        const s3 = new S3Client(<S3ClientConfig>{
+            region: "ap-southeast-2"
+        });
+        var promises: Promise<any>[] = [];
         for (const spec of specs) {
-            console.log(`Uploading file ${spec.key} (total = ${specs.length})`)
-            await this._uploader.upload(spec, this.params.destinationBucket)
+            promises.push(this._uploader.upload(s3, spec, this.params.destinationBucket));
         }
+        await Promise.all(promises);
     }
     
 }
