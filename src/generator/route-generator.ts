@@ -27,7 +27,7 @@ export class RouteGenerator extends Generator {
     ): FileSpec[] {
         console.log("Starting route generation");
         var out = <FileSpec[]>[];
-        for (const routeId in Object.keys(index.tripsByRoute)) {
+        for (const routeId in index.tripsByRoute) {
             const tripIds = index.tripsByRoute[routeId].tripId;
             if (tripIds == null) continue;
             const message = this._createMessage(
