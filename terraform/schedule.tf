@@ -3,7 +3,7 @@
 resource "aws_cloudwatch_event_rule" "lambda_schedule_develop" {
   name = "lambda_gtfsrt_schedule_develop"
   description = "trigger lambda gtfsrt every 10 minutes for develop"
-  state = "DISABLED"
+  state = "ENABLED"
 
   schedule_expression = "rate(10 minutes)"
 }
@@ -13,7 +13,7 @@ resource "aws_cloudwatch_event_target" "lambda_target_develop" {
   target_id = "SendToLambda"
   arn = aws_lambda_function.lambda_gtfsrt.arn
   input = jsonencode({
-    "gtfsrtUrl": "https://transport.api.act.gov.au/data/gtfs/v2/vehicle-positions.pb",
+    "gtfsrtUrl": "https://transport.api.act.gov.au/gtfs/data/gtfs/v2/trip-updates.pb",
     "destinationBucket": data.terraform_remote_state.main_infra.outputs.bucket_api_develop_name
     "ttl": 15,
     "indexBucket": data.terraform_remote_state.main_infra.outputs.bucket_private_name,
@@ -45,7 +45,7 @@ resource "aws_cloudwatch_event_target" "lambda_target_prod" {
   target_id = "SendToLambda"
   arn = aws_lambda_function.lambda_gtfsrt.arn
   input = jsonencode({
-    "gtfsrtUrl": "https://transport.api.act.gov.au/data/gtfs/v2/vehicle-positions.pb",
+    "gtfsrtUrl": "https://transport.api.act.gov.au/gtfs/data/gtfs/v2/trip-updates.pb",
     "destinationBucket": data.terraform_remote_state.main_infra.outputs.bucket_api_prod_name
     "ttl": 4,
     "indexBucket": data.terraform_remote_state.main_infra.outputs.bucket_private_name,
