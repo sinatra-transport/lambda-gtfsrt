@@ -11,7 +11,7 @@ export class Scraper {
     async _secret(name: string): Promise<string> {
         return new Promise((resolve, reject) => {
             httpRequest(
-                `http://localhost:2773/systemsmanager/parameters/get?name=${encodeURI(name)}`,
+                `http://localhost:2773/systemsmanager/parameters/get?name=${encodeURIComponent(name)}`,
                 {
                     headers: {
                         'X-Aws-Parameters-Secrets-Token': process.env.AWS_SESSION_TOKEN
@@ -28,7 +28,7 @@ export class Scraper {
                     res.on('data', chunk => chunks.push(chunk));
                     res.on('end', () => {
                         const buffer = Buffer.concat(chunks);
-                        resolve(buffer.toString('utf8'));
+                        resolve(JSON.parse(buffer.toString('utf8')).Parameter.Value);
                     });
                 }
             )
