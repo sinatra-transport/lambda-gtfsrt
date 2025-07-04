@@ -3,7 +3,7 @@
 resource "aws_cloudwatch_event_rule" "lambda_schedule_develop" {
   name = "lambda_gtfsrt_schedule_develop"
   description = "trigger lambda gtfsrt every 10 minutes for develop"
-  state = "ENABLED"
+  state = "DISABLED"
 
   schedule_expression = "rate(10 minutes)"
 }
