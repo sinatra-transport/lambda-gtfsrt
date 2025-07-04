@@ -14,7 +14,7 @@ resource "aws_lambda_function" "lambda_gtfsrt" {
     runtime = "nodejs22.x"
 
     memory_size = 128
-    timeout = 20
+    timeout = 60
     layers = [
       // AWS secrets layer
       "arn:aws:lambda:ap-southeast-2:665172237481:layer:AWS-Parameters-and-Secrets-Lambda-Extension:17"
