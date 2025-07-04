@@ -46,4 +46,16 @@ data "aws_iam_policy_document" "lambda_policy" {
       "${data.terraform_remote_state.main_infra.outputs.bucket_api_develop_arn}/canberra/v1/stop/*/live.pb"
     ]
   }
+
+  statement {
+    actions = [
+      "ssm:GetParameter",
+      "kms:Decrypt"
+    ]
+
+    resources = [
+      "arn:aws:ssm:ap-southeast-2:859915817480:parameter/sinatra/transportcanberra/username",
+      "arn:aws:ssm:ap-southeast-2:859915817480:parameter/sinatra/transportcanberra/password"
+    ]
+  }
 }

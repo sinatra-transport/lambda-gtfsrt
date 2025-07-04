@@ -7,12 +7,25 @@ import groupBy from 'just-group-by';
 
 export class RouteGenerator extends Generator {
 
+    _routeId(routeId: string): string {
+        const r = routeId.split("_")[0]
+        switch(r) {
+            case "1":
+                return "ACTO001"
+            case "X1":
+            case "X2":
+                return r
+            default:
+                return `${r}-10657`
+        }
+    }
+
     generate(
         feed: transit_realtime.FeedMessage, 
         index: trip_index.TripIndex,
         params: OrchestratorParams
     ): FileSpec[] {
-        const routeTrips = groupBy(index.trips, (i) => i.routeId);
+        const routeTrips = groupBy(index.trips, (i) => this._routeId(i.routeId));
         var out = <FileSpec[]>[];
 
         for (const routeId in routeTrips) {

@@ -58,8 +58,8 @@ describe('RouteGenerator', () => {
         const output = generator.generate(feed, makeTripIndex(), params);
 
         expect(output).toHaveLength(2);
-        expect(output[0].key).toMatch(/route1\/live\.pb$/);
-        expect(output[1].key).toMatch(/route2\/live\.pb$/);
+        expect(output[0].key).toMatch(/route1-10657\/live\.pb$/);
+        expect(output[1].key).toMatch(/route2-10657\/live\.pb$/);
         
         expect(gtfs_api.RealtimeEndpoint.decode(output[0].contents).updates).toHaveLength(2);
         expect(gtfs_api.RealtimeEndpoint.decode(output[1].contents).updates).toHaveLength(1);

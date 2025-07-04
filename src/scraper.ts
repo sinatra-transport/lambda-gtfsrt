@@ -3,25 +3,68 @@ import { trip_index } from './proto/trip-index.js';
 import { S3Client, S3ClientConfig, GetObjectCommand, GetObjectRequest } from '@aws-sdk/client-s3';
 import { request } from 'https';
 import { IncomingMessage } from 'http';
+import { stringMap } from 'aws-sdk/clients/backup.js';
 
 export class Scraper {
 
-    _fetchAsUint8Array(url: string): Promise<Uint8Array> {
+    async _secret(name: string): Promise<string> {
         return new Promise((resolve, reject) => {
-            request(url, (res: IncomingMessage) => {
-                if (res.statusCode !== 200) {
-                    reject(new Error(`Request failed with status code ${res.statusCode}`));
-                    return;
+            request(
+                `http://localhost:2773/systemsmanager/parameters/get?name=${encodeURI(name)}`,
+                {
+                    headers: {
+                        'X-Aws-Parameters-Secrets-Token': process.env.AWS_SESSION_TOKEN
+                    }
+                },
+                (res: IncomingMessage) => {
+                    if (res.statusCode !== 200) {
+                        reject(new Error(`Request failed with status code ${res.statusCode}`));
+                        return;
+                    }
+
+                    const chunks: Buffer[] = [];
+
+                    res.on('data', chunk => chunks.push(chunk));
+                    res.on('end', () => {
+                        const buffer = Buffer.concat(chunks);
+                        resolve(buffer.toString('utf8'));
+                    });
                 }
+            )
+                .on('error', reject)
+                .end();
+        });
+    }
 
-                const chunks: Buffer[] = [];
+    async _fetchAsUint8Array(
+        url: string
+    ): Promise<Uint8Array> {
+        const username = await this._secret("/sinatra/transportcanberra/username");
+        const password = await this._secret("/sinatra/transportcanberra/password");
+        const authString = Buffer.from(`${username}:${password}`, 'utf8').toString('base64');
+        return new Promise((resolve, reject) => {
+            request(
+                url, 
+                {
+                    headers: {
+                        "Authorization": `Basic ${authString}`
+                    }
+                },
+                (res: IncomingMessage) => {
+                    if (res.statusCode !== 200) {
+                        reject(new Error(`Request failed with status code ${res.statusCode}`));
+                        return;
+                    }
 
-                res.on('data', chunk => chunks.push(chunk));
-                res.on('end', () => {
-                    const buffer = Buffer.concat(chunks);
-                    resolve(new Uint8Array(buffer));
-                });
-            })
+                    const chunks: Buffer[] = [];
+
+                    res.on('data', chunk => chunks.push(chunk));
+                    res.on('end', () => {
+                        const buffer = Buffer.concat(chunks);
+                        resolve(new Uint8Array(buffer));
+                    });
+                }
+            )
                 .on('error', reject)
                 .end();
         });
