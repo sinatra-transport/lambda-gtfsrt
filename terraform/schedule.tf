@@ -2,10 +2,10 @@
 
 resource "aws_cloudwatch_event_rule" "lambda_schedule_develop" {
   name = "lambda_gtfsrt_schedule_develop"
-  description = "trigger lambda gtfsrt every 10 minutes for develop"
-  state = "DISABLED"
+  description = "trigger lambda gtfsrt every 20 minutes for develop"
+  state = "ENABLED"
 
-  schedule_expression = "rate(10 minutes)"
+  schedule_expression = "rate(20 minutes)"
 }
 
 resource "aws_cloudwatch_event_target" "lambda_target_develop" {
@@ -15,7 +15,7 @@ resource "aws_cloudwatch_event_target" "lambda_target_develop" {
   input = jsonencode({
     "gtfsrtUrl": "https://transport.api.act.gov.au/gtfs/data/gtfs/v2/trip-updates.pb",
     "destinationBucket": data.terraform_remote_state.main_infra.outputs.bucket_api_develop_name
-    "ttl": 15,
+    "ttl": 30,
     "indexBucket": data.terraform_remote_state.main_infra.outputs.bucket_private_name,
     "indexFile": "trip-index.pb",
     "permitStale": true
@@ -34,10 +34,10 @@ resource "aws_lambda_permission" "allow_eventbridge_develop" {
 
 resource "aws_cloudwatch_event_rule" "lambda_schedule_prod" {
   name = "lambda_gtfsrt_schedule_prod"
-  description = "trigger lambda gtfsrt every 2 minute for prod"
-  state = "DISABLED"
+  description = "trigger lambda gtfsrt every 4 minute for prod"
+  state = "ENABLED"
 
-  schedule_expression = "rate(2 minutes)"
+  schedule_expression = "rate(4 minutes)"
 }
 
 resource "aws_cloudwatch_event_target" "lambda_target_prod" {
@@ -47,7 +47,7 @@ resource "aws_cloudwatch_event_target" "lambda_target_prod" {
   input = jsonencode({
     "gtfsrtUrl": "https://transport.api.act.gov.au/gtfs/data/gtfs/v2/trip-updates.pb",
     "destinationBucket": data.terraform_remote_state.main_infra.outputs.bucket_api_prod_name
-    "ttl": 4,
+    "ttl": 10,
     "indexBucket": data.terraform_remote_state.main_infra.outputs.bucket_private_name,
     "indexFile": "trip-index.pb"
   })

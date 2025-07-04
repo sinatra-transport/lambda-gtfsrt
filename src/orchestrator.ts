@@ -18,7 +18,7 @@ export class Orchestrator {
         uploader: Uploader = new Uploader(),
         generators: Generator[] = [
             new RouteGenerator(),
-            new StopGenerator()
+            // new StopGenerator()
         ],
     ) {
         this.params = params;
