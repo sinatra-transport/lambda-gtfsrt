@@ -11,19 +11,11 @@ export class StopGenerator extends Generator {
         index: trip_index.TripIndex,
         params: OrchestratorParams
     ): FileSpec[] {
-        var stopTrips = new Map<string, string[]>();
-        for (const trip of index.trips) {
-            if (trip.stopIds == null) continue;
-            for (const stopId of trip.stopIds) {
-                const existing = stopTrips.get(stopId) ?? [];
-                stopTrips.set(stopId, [...existing, trip.tripId]);
-            }
-        }
-
+        console.log("Starting stop generation");
         var out = <FileSpec[]>[];
 
-        for (const stopId of stopTrips.keys()) {
-            const tripIds = stopTrips.get(stopId);
+        for (const stopId of Object.keys(index.tripsByStop)) {
+            const tripIds = index.tripsByStop[stopId].tripId;
             if (tripIds == null) continue;
             
             const message = this._createMessage(

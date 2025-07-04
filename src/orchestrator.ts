@@ -49,6 +49,7 @@ export class Orchestrator {
     }
 
     async _upload(specs: FileSpec[]) {
+        console.log("Starting upload");
         for (const spec of specs) {
             console.log(`Uploading file ${spec.key} (total = ${specs.length})`)
             await this._uploader.upload(spec, this.params.destinationBucket)

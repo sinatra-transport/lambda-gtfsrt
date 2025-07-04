@@ -25,11 +25,11 @@ export class RouteGenerator extends Generator {
         index: trip_index.TripIndex,
         params: OrchestratorParams
     ): FileSpec[] {
-        const routeTrips = groupBy(index.trips, (i) => this._routeId(i.routeId));
+        console.log("Starting route generation");
         var out = <FileSpec[]>[];
-
-        for (const routeId in routeTrips) {
-            const tripIds = routeTrips[routeId].map((t) => t.tripId);
+        for (const routeId in Object.keys(index.tripsByRoute)) {
+            const tripIds = index.tripsByRoute[routeId].tripId;
+            if (tripIds == null) continue;
             const message = this._createMessage(
                 feed,
                 params,
