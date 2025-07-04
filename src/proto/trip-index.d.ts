@@ -8,6 +8,12 @@ export namespace trip_index {
 
         /** TripIndex trips */
         trips?: (trip_index.ITripInformation[]|null);
+
+        /** TripIndex tripsByRoute */
+        tripsByRoute?: ({ [k: string]: trip_index.IAssociatedTrips }|null);
+
+        /** TripIndex tripsByStop */
+        tripsByStop?: ({ [k: string]: trip_index.IAssociatedTrips }|null);
     }
 
     /** Represents a TripIndex. */
@@ -21,6 +27,12 @@ export namespace trip_index {
 
         /** TripIndex trips. */
         public trips: trip_index.ITripInformation[];
+
+        /** TripIndex tripsByRoute. */
+        public tripsByRoute: { [k: string]: trip_index.IAssociatedTrips };
+
+        /** TripIndex tripsByStop. */
+        public tripsByStop: { [k: string]: trip_index.IAssociatedTrips };
 
         /**
          * Creates a new TripIndex instance using the specified properties.
@@ -203,6 +215,103 @@ export namespace trip_index {
 
         /**
          * Gets the default type url for TripInformation
+         * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+         * @returns The default type url
+         */
+        public static getTypeUrl(typeUrlPrefix?: string): string;
+    }
+
+    /** Properties of an AssociatedTrips. */
+    interface IAssociatedTrips {
+
+        /** AssociatedTrips tripId */
+        tripId?: (string[]|null);
+    }
+
+    /** Represents an AssociatedTrips. */
+    class AssociatedTrips implements IAssociatedTrips {
+
+        /**
+         * Constructs a new AssociatedTrips.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: trip_index.IAssociatedTrips);
+
+        /** AssociatedTrips tripId. */
+        public tripId: string[];
+
+        /**
+         * Creates a new AssociatedTrips instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns AssociatedTrips instance
+         */
+        public static create(properties?: trip_index.IAssociatedTrips): trip_index.AssociatedTrips;
+
+        /**
+         * Encodes the specified AssociatedTrips message. Does not implicitly {@link trip_index.AssociatedTrips.verify|verify} messages.
+         * @param message AssociatedTrips message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: trip_index.IAssociatedTrips, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified AssociatedTrips message, length delimited. Does not implicitly {@link trip_index.AssociatedTrips.verify|verify} messages.
+         * @param message AssociatedTrips message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: trip_index.IAssociatedTrips, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes an AssociatedTrips message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns AssociatedTrips
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): trip_index.AssociatedTrips;
+
+        /**
+         * Decodes an AssociatedTrips message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns AssociatedTrips
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): trip_index.AssociatedTrips;
+
+        /**
+         * Verifies an AssociatedTrips message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates an AssociatedTrips message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns AssociatedTrips
+         */
+        public static fromObject(object: { [k: string]: any }): trip_index.AssociatedTrips;
+
+        /**
+         * Creates a plain object from an AssociatedTrips message. Also converts values to other types if specified.
+         * @param message AssociatedTrips
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: trip_index.AssociatedTrips, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this AssociatedTrips to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+
+        /**
+         * Gets the default type url for AssociatedTrips
          * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
          * @returns The default type url
          */
