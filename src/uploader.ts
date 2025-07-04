@@ -1,16 +1,14 @@
-import { PutObjectCommand, PutObjectRequest, S3Client, S3ClientConfig } from "@aws-sdk/client-s3";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { FileSpec } from "./models.js";
 import { Buffer } from "node:buffer";
 
 export class Uploader {
 
     async upload(
+        s3: S3Client,
         spec: FileSpec,
         bucket: string
     ) {
-        const s3 = new S3Client(<S3ClientConfig>{
-            region: "ap-southeast-2"
-        });
         const buffer = Buffer.from(spec.contents);
 
         const command = new PutObjectCommand({
