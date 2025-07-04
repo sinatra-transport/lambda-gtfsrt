@@ -2,6 +2,7 @@ import { transit_realtime } from './proto/gtfs-rt.js'
 import { trip_index } from './proto/trip-index.js';
 import { S3Client, S3ClientConfig, GetObjectCommand, GetObjectRequest } from '@aws-sdk/client-s3';
 import { request } from 'https';
+import { request as httpRequest } from 'http';
 import { IncomingMessage } from 'http';
 import { stringMap } from 'aws-sdk/clients/backup.js';
 
@@ -9,7 +10,7 @@ export class Scraper {
 
     async _secret(name: string): Promise<string> {
         return new Promise((resolve, reject) => {
-            request(
+            httpRequest(
                 `http://localhost:2773/systemsmanager/parameters/get?name=${encodeURI(name)}`,
                 {
                     headers: {
