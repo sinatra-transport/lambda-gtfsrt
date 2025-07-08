@@ -432,9 +432,11 @@ mod tests {
 
         let params = mock_params(Some(10 * 60), None);
         let result = generator.generate(&feed, &index, &params);
+        assert_eq!(result.len(), 1);
 
         let parsed = RealtimeEndpoint::decode(&*result[0].contents).unwrap();
-        assert!(parsed.updates.is_empty());
+        assert!(!parsed.updates.is_empty());
+        assert_eq!(parsed.updates[0].delay.unwrap(), 0)
     }
 
     #[test]
