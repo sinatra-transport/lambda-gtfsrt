@@ -1,0 +1,10 @@
+[package]
+name = "gtfsrt-processor-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+gtfsrt-processor-core = { path = "../core" }
+chrono = "0.4.41"
+tokio = { version = "1.46.1", features = ["full"] }
+clap = { version = "4.5.40", features = ["derive"] }

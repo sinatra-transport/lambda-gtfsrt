@@ -17,39 +17,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Install Rust toolchain with Cargo Lambda
+        uses: moonrepo/setup-rust@v1
         with:
-          node-version: 22.x
+          bins: cargo-lambda
+      - name: Install Zig toolchain
+        uses: mlugg/setup-zig@v1
+        with:
+          version: 0.14.0
       - run: |
-          npm install --no-bin-links
-          npm run build
-          cp -r node_modules dist/node_modules
-          (cd dist && zip -r ../lambda-gtfsrt.zip .)
+          cargo lambda build --release --arm64 --output-format zip --manifest-path lambda/Cargo.toml
       - uses: actions/upload-artifact@v4
         with:
           name: lambda-gtfsrt
-          path: ./lambda-gtfsrt.zip
-  upload-s3:
-    runs-on: ubuntu-latest
-    needs:
-      - build
-    steps:
-      - name: Setup AWS CLI
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
-      - uses: actions/download-artifact@v4
-        with:
-          name: lambda-gtfsrt
-          path: ./
-      - run: aws s3 cp lambda-gtfsrt.zip s3://${{ vars.AWS_LAMBDA_BUCKET }}
+          path: ./lambda/target/lambda/lambda/bootstrap.zip
   terraform:
     name: "Terraform Apply"
     runs-on: ubuntu-latest
     needs:
-      - upload-s3
+      - build
     permissions:
       contents: read
     steps:

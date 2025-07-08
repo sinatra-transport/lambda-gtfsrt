@@ -1,0 +1,16 @@
+[package]
+name = "lambda"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+async-trait = "0.1.88"
+aws-config = "1.8.1"
+aws-sdk-s3 = "1.96.0"
+chrono = "0.4.41"
+gtfsrt-processor-core = { path = "../core" }
+lambda_runtime = "0.14.2"
+openssl = { version = "0.10.73", features = ["vendored"] }
+reqwest = { version = "0.12.22", features = ["json"] }
+serde = "1.0.136"
+tokio = { version = "1.46.1", features = ["full"] }
