@@ -98,8 +98,7 @@ where
                         stu.departure.and_then(|d| d.delay)
                     )
                 })
-            });
-            if delay.is_none() { return None }
+            }).or(Some(0));
 
             Some(RealtimeUpdate {
                 delay,
