@@ -1,24 +1,26 @@
-name: "Test"
-
-on:
-  push:
-    branches:
-      - main
-      - develop
+name: Test
+'on':
   pull_request:
     branches:
-      - main
-      - develop
-
+    - main
+    - develop
+  push:
+    branches:
+    - main
+    - develop
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22.x
-      - run: |
-          npm install --include=dev
-          npm run test
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: arduino/setup-protoc@v3
+    - name: Setup rust
+      run: |-
+        rustup install 1.88.0
+        rustup override set 1.88.0
+    - name: Build
+      run: cargo build --manifest-path core/Cargo.toml
+    - name: Test
+      run: cargo test --verbose --manifest-path core/Cargo.toml

@@ -1,0 +1,21 @@
+[package]
+name = "gtfsrt-processor-core"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+aws-config = "1.8.1"
+aws-sdk-s3 = "1.96.0"
+aws-sdk-ssm = "1.83.0"
+chrono = "0.4.41"
+prost = "0.14.1"
+tokio = { version = "1.46.1", features = ["full"] }
+async-trait = "0.1.88"
+futures = "0.3.31"
+reqwest = "0.12.22"
+
+[build-dependencies]
+prost-build = "0.14.1"

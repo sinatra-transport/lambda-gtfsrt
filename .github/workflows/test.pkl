@@ -1,0 +1,45 @@
+extends "package://github.com/emilymclean/pkl-github-actions/releases/download/v1.0.0/pkl-github-actions@1.0.0#/actions.pkl"
+import "package://components.emilym.cl/actions/actions@0.1.17#/common/common.pkl" as common
+
+name = "Test"
+
+on = new On {
+    push = new Push {
+        branches = new Listing {
+            "main"
+            "develop"
+        }
+    }
+    pull_request = new PullRequest {
+        branches = new Listing {
+            "main" 
+            "develop"
+        }
+    }
+}
+
+jobs = new Mapping {
+    ["test"] = new Job {
+        steps = new Listing {
+            common.checkout
+            new ActionStep {
+                uses = "arduino/setup-protoc@v3"
+            }
+            new CommandStep {
+                name = "Setup rust"
+                run = """
+                rustup install 1.88.0
+                rustup override set 1.88.0
+                """
+            }
+            new CommandStep {
+                name = "Build"
+                run = "cargo build --manifest-path core/Cargo.toml"
+            }
+            new CommandStep {
+                name = "Test"
+                run = "cargo test --verbose --manifest-path core/Cargo.toml"
+            }
+        }
+    }
+}
