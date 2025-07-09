@@ -18,7 +18,7 @@ impl Stale for TripUpdate {
 }
 
 fn is_stale(timestamp: Option<&u64>, threshold: i64) -> bool {
-    if timestamp.is_none() { return true; }
+    if timestamp.is_none() || *timestamp.unwrap() == 0 { return false; }
     // The unsafe unwrap is fine since the Utc::now() would be the problem before then
     ((timestamp.unwrap().clone() as i64) + threshold) <= Utc::now().timestamp()
 }
