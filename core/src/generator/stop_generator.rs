@@ -16,6 +16,7 @@ impl Generator for StopGenerator {
         GenericGenerator {
             prefix: "stop",
             extract: |i| &i.trips_by_stop,
+            is_stop_id: true
         }.generate(feed, index, params)
     }
 }
