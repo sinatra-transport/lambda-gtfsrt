@@ -34,7 +34,7 @@ resource "aws_lambda_permission" "allow_eventbridge_develop" {
 resource "aws_cloudwatch_event_rule" "lambda_schedule_prod" {
   name = "lambda_gtfsrt_schedule_prod"
   description = "trigger lambda gtfsrt every 4 minute for prod"
-  state = "DISABLED"
+  state = "ENABLED"
 
   schedule_expression = "rate(4 minutes)"
 }
