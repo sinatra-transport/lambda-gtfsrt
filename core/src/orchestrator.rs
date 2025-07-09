@@ -81,7 +81,7 @@ impl Orchestrator
         let grouped = files.chunks(files.len() / workers);
 
         let results = futures::future::join_all(
-            grouped.map(|g| {
+            grouped.map(async |g| {
                 let uploader = self.uploader.clone();
                 let group = g.to_vec();
 
@@ -89,8 +89,8 @@ impl Orchestrator
                     futures::future::join_all(
                         group.into_iter().map(|f| uploader.upload(f))
                     ).await
-                })
-            })
+                }).await
+            }).collect::<Vec<_>>()
         ).await;
 
         for (i, result) in results.into_iter().enumerate() {
