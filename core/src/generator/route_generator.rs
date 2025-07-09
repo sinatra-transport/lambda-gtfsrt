@@ -16,6 +16,7 @@ impl Generator for RouteGenerator {
         GenericGenerator {
             prefix: "route",
             extract: |i| &i.trips_by_route,
+            is_stop_id: false
         }.generate(feed, index, params)
     }
 }

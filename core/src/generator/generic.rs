@@ -10,19 +10,18 @@ use prost::Message;
 const DEFAULT_STALE_DATA_THRESHOLD: i64 = 10 * 60i64;
 const MIME_TYPE: &str = "application/x-protobuf; proto=cl.emilym.gtfs_api.RealtimeEndpoint";
 
-pub struct GenericGenerator<'a, K, F>
+pub struct GenericGenerator<'a, F>
 where
-    F: Fn(&TripIndex) -> &std::collections::HashMap<K, AssociatedTrips> + 'a,
-    K: std::fmt::Display + Eq + std::hash::Hash,
+    F: Fn(&TripIndex) -> &std::collections::HashMap<String, AssociatedTrips> + 'a
 {
     pub(crate) prefix: &'a str,
     pub(crate) extract: F,
+    pub(crate) is_stop_id: bool
 }
 
-impl<'a, K, F> Generator for GenericGenerator<'a, K, F>
+impl<'a, F> Generator for GenericGenerator<'a, F>
 where
-    F: Fn(&TripIndex) -> &std::collections::HashMap<K, AssociatedTrips> + 'a,
-    K: std::fmt::Display + Eq + std::hash::Hash,
+    F: Fn(&TripIndex) -> &std::collections::HashMap<String, AssociatedTrips> + 'a
 {
     fn generate(&self, feed: &FeedMessage, index: &TripIndex, params: &OrchestratorParams) -> Vec<FileSpec> {
         let stale_threshold = params.stale_threshold.unwrap_or(DEFAULT_STALE_DATA_THRESHOLD);
@@ -48,6 +47,7 @@ where
                     entities.as_slice(),
                     params,
                     trips.trip_id.as_slice(),
+                    if self.is_stop_id { Some(id) } else { None },
                     stale_threshold
                 )
             }.encode_to_vec();
@@ -64,10 +64,9 @@ where
     }
 }
 
-impl<'a, K, F> GenericGenerator<'a, K, F>
+impl<'a, F> GenericGenerator<'a, F>
 where
-    F: Fn(&TripIndex) -> &std::collections::HashMap<K, AssociatedTrips> + 'a,
-    K: std::fmt::Display + Eq + std::hash::Hash
+    F: Fn(&TripIndex) -> &std::collections::HashMap<String, AssociatedTrips> + 'a
 {
     fn expire(&self, params: &OrchestratorParams) -> Option<String> {
         params.ttl.map(
@@ -80,6 +79,7 @@ where
         entities: &[&FeedEntity],
         params: &OrchestratorParams,
         trip_ids: &[String],
+        stop_id: Option<&str>,
         stale_threshold: i64
     ) -> RealtimeEndpoint {
         let updates = entities.iter().filter(
@@ -93,11 +93,17 @@ where
             if update.stale(stale_threshold) { return None }
 
             let delay = update.delay.filter(|&d| d != 0).or_else(|| {
-                update.stop_time_update.first().and_then(|stu| {
-                    stu.arrival.and_then(|a| a.delay).or(
-                        stu.departure.and_then(|d| d.delay)
+                let stop_update = stop_id.and_then(|s|
+                    update.stop_time_update.iter().find(|u|
+                        u.stop_id.as_ref().map(|us| us == s).unwrap_or(false)
                     )
-                })
+                ).or_else(|| update.stop_time_update.first())?;
+                stop_update.arrival
+                    .and_then(|a| a.delay)
+                    .filter(|&d| d != 0)
+                    .or_else(||
+                        stop_update.departure.and_then(|d| d.delay)
+                    )
             }).or(Some(0));
 
             Some(RealtimeUpdate {
@@ -185,14 +191,18 @@ mod tests {
         }
     }
 
-    fn mock_trip_index(trip_ids: Vec<String>) -> TripIndex {
+    fn mock_trip_index_with_stop(stop_id: &str, trip_ids: Vec<String>) -> TripIndex {
         let mut index = TripIndex::default();
 
-        index.trips_by_stop = HashMap::from([("mock_key".to_string(), AssociatedTrips {
+        index.trips_by_stop = HashMap::from([(stop_id.to_string(), AssociatedTrips {
             trip_id: trip_ids
         })]);
 
         index
+    }
+
+    fn mock_trip_index(trip_ids: Vec<String>) -> TripIndex {
+        mock_trip_index_with_stop("mock_key", trip_ids)
     }
 
     fn mock_trip_index_multiple_stops(stops: Vec<(&str, Vec<String>)>) -> TripIndex {
@@ -251,6 +261,38 @@ mod tests {
         }
     }
 
+    fn create_trip_update_with_stop_delays(
+        trip_id: &str,
+        trip_delay: Option<i32>,
+        stop_updates: Vec<(&str, Option<i32>, Option<i32>)> // (stop_id, arrival_delay, departure_delay)
+    ) -> TripUpdate {
+        let stop_time_updates = stop_updates.into_iter().map(|(stop_id, arrival_delay, departure_delay)| {
+            StopTimeUpdate {
+                stop_id: Some(stop_id.to_string()),
+                arrival: arrival_delay.map(|delay| StopTimeEvent {
+                    delay: Some(delay),
+                    ..StopTimeEvent::default()
+                }),
+                departure: departure_delay.map(|delay| StopTimeEvent {
+                    delay: Some(delay),
+                    ..StopTimeEvent::default()
+                }),
+                ..StopTimeUpdate::default()
+            }
+        }).collect();
+
+        TripUpdate {
+            trip: TripDescriptor {
+                trip_id: Some(trip_id.to_string()),
+                ..TripDescriptor::default()
+            },
+            stop_time_update: stop_time_updates,
+            delay: trip_delay,
+            timestamp: Some(Utc::now().timestamp() as u64),
+            ..TripUpdate::default()
+        }
+    }
+
     #[test]
     fn test_generate_with_valid_data() {
         let feed = mock_feed_message(true, false);
@@ -260,6 +302,7 @@ mod tests {
         let generator = GenericGenerator {
             prefix: "test",
             extract: mock_extract,
+            is_stop_id: false
         };
 
         let params = mock_params(Some(10 * 60), Some(300));
@@ -288,6 +331,7 @@ mod tests {
         let generator = GenericGenerator {
             prefix: "test",
             extract: mock_extract,
+            is_stop_id: false
         };
 
         let params = mock_params(Some(10 * 60), None);
@@ -315,6 +359,7 @@ mod tests {
         let generator = GenericGenerator {
             prefix: "test",
             extract: mock_extract,
+            is_stop_id: false
         };
 
         let params = mock_params(Some(10 * 60), None);
@@ -340,6 +385,7 @@ mod tests {
         let generator = GenericGenerator {
             prefix: "test",
             extract: mock_extract,
+            is_stop_id: false
         };
 
         let params = mock_params(Some(10 * 60), None);
@@ -362,6 +408,7 @@ mod tests {
         let generator = GenericGenerator {
             prefix: "test",
             extract: mock_extract,
+            is_stop_id: false
         };
 
         let params = mock_params(Some(10 * 60), None);
@@ -396,6 +443,7 @@ mod tests {
         let generator = GenericGenerator {
             prefix: "test",
             extract: mock_extract,
+            is_stop_id: false
         };
 
         let params = mock_params(Some(10 * 60), None);
@@ -428,6 +476,7 @@ mod tests {
         let generator = GenericGenerator {
             prefix: "test",
             extract: mock_extract,
+            is_stop_id: false
         };
 
         let params = mock_params(Some(10 * 60), None);
@@ -457,6 +506,7 @@ mod tests {
         let generator = GenericGenerator {
             prefix: "test",
             extract: mock_extract,
+            is_stop_id: false
         };
 
         let params = mock_params(Some(10 * 60), None);
@@ -483,6 +533,7 @@ mod tests {
         let generator = GenericGenerator {
             prefix: "test",
             extract: mock_extract,
+            is_stop_id: false
         };
 
         let params = mock_params(Some(10 * 60), None);
@@ -508,6 +559,7 @@ mod tests {
         let generator = GenericGenerator {
             prefix: "test",
             extract: mock_extract,
+            is_stop_id: false
         };
 
         let params = mock_params(Some(10 * 60), None);
@@ -528,6 +580,7 @@ mod tests {
         let generator = GenericGenerator {
             prefix: "test",
             extract: mock_extract,
+            is_stop_id: false
         };
 
         let params = mock_params(Some(10 * 60), None);
@@ -548,6 +601,7 @@ mod tests {
         let generator = GenericGenerator {
             prefix: "test",
             extract: mock_extract,
+            is_stop_id: false
         };
 
         let params = mock_params(Some(5 * 60), None); // 5 minutes threshold
@@ -570,6 +624,7 @@ mod tests {
         let generator = GenericGenerator {
             prefix: "test",
             extract: mock_extract,
+            is_stop_id: false
         };
 
         let params = mock_params(None, None); // Use default threshold
@@ -592,6 +647,7 @@ mod tests {
         let generator = GenericGenerator {
             prefix: "test",
             extract: mock_extract,
+            is_stop_id: false
         };
 
         let params = mock_params(Some(10 * 60), Some(300)); // 5 minutes TTL
@@ -617,6 +673,7 @@ mod tests {
         let generator = GenericGenerator {
             prefix: "test",
             extract: mock_extract,
+            is_stop_id: false
         };
 
         let params = mock_params(Some(10 * 60), None); // No TTL
@@ -638,6 +695,7 @@ mod tests {
         let generator = GenericGenerator {
             prefix: "custom_prefix",
             extract: mock_extract,
+            is_stop_id: false
         };
 
         let params = mock_params(Some(10 * 60), None);
@@ -670,6 +728,7 @@ mod tests {
         let generator = GenericGenerator {
             prefix: "test",
             extract: mock_extract,
+            is_stop_id: false
         };
 
         let params = mock_params(Some(10 * 60), None);
@@ -679,5 +738,94 @@ mod tests {
         assert_eq!(parsed.updates.len(), 1);
         // Should use trip-level delay when non-zero
         assert_eq!(parsed.updates[0].delay, Some(50));
+    }
+
+    #[test]
+    fn test_is_stop_id_false_uses_first_stop_delay() {
+        let update = create_trip_update_with_stop_delays(
+            "trip123",
+            None, // No trip-level delay
+            vec![
+                ("stop1", Some(100), None),
+                ("stop2", Some(200), None),
+            ]
+        );
+
+        let entities = vec![create_feed_entity("e1", Some(update), Some(false))];
+        let feed = mock_feed_message_with_entities(entities, false);
+        let index = mock_trip_index_with_stop("target_stop", vec!["trip123".to_string()]);
+
+        let generator = GenericGenerator {
+            prefix: "test",
+            extract: mock_extract,
+            is_stop_id: false // Should use first stop's delay
+        };
+
+        let params = mock_params(Some(10 * 60), None);
+        let result = generator.generate(&feed, &index, &params);
+
+        let parsed = RealtimeEndpoint::decode(&*result[0].contents).unwrap();
+        assert_eq!(parsed.updates.len(), 1);
+        assert_eq!(parsed.updates[0].delay, Some(100)); // First stop's delay
+    }
+
+    #[test]
+    fn test_is_stop_id_true_uses_specific_stop_delay() {
+        let update = create_trip_update_with_stop_delays(
+            "trip123",
+            None, // No trip-level delay
+            vec![
+                ("stop1", Some(100), None),
+                ("target_stop", Some(200), None),
+                ("stop3", Some(300), None),
+            ]
+        );
+
+        let entities = vec![create_feed_entity("e1", Some(update), Some(false))];
+        let feed = mock_feed_message_with_entities(entities, false);
+        let index = mock_trip_index_with_stop("target_stop", vec!["trip123".to_string()]);
+
+        let generator = GenericGenerator {
+            prefix: "test",
+            extract: mock_extract,
+            is_stop_id: true // Should use target_stop's delay
+        };
+
+        let params = mock_params(Some(10 * 60), None);
+        let result = generator.generate(&feed, &index, &params);
+
+        let parsed = RealtimeEndpoint::decode(&*result[0].contents).unwrap();
+        assert_eq!(parsed.updates.len(), 1);
+        assert_eq!(parsed.updates[0].delay, Some(200)); // target_stop's delay
+    }
+
+    #[test]
+    fn test_is_stop_id_true_fallback_to_first_stop_when_target_not_found() {
+        let update = create_trip_update_with_stop_delays(
+            "trip123",
+            None, // No trip-level delay
+            vec![
+                ("stop1", Some(100), None),
+                ("stop2", Some(200), None),
+                // Note: target_stop is NOT in the updates
+            ]
+        );
+
+        let entities = vec![create_feed_entity("e1", Some(update), Some(false))];
+        let feed = mock_feed_message_with_entities(entities, false);
+        let index = mock_trip_index_with_stop("target_stop", vec!["trip123".to_string()]);
+
+        let generator = GenericGenerator {
+            prefix: "test",
+            extract: mock_extract,
+            is_stop_id: true // Should fallback to first stop's delay
+        };
+
+        let params = mock_params(Some(10 * 60), None);
+        let result = generator.generate(&feed, &index, &params);
+
+        let parsed = RealtimeEndpoint::decode(&*result[0].contents).unwrap();
+        assert_eq!(parsed.updates.len(), 1);
+        assert_eq!(parsed.updates[0].delay, Some(100)); // First stop's delay as fallback
     }
 }
