@@ -34,16 +34,12 @@ data "aws_iam_policy_document" "lambda_policy" {
 
   statement {
     actions = [
-      "s3:PutObject",
-      "s3:GetObject",
-      "s3:DeleteObject"
+      "dynamodb:PutItem",
+      "dynamodb:GetItem",
     ]
 
     resources = [
-      "${data.terraform_remote_state.main_infra.outputs.bucket_api_prod_arn}/canberra/v1/route/*/live.pb",
-      "${data.terraform_remote_state.main_infra.outputs.bucket_api_develop_arn}/canberra/v1/route/*/live.pb",
-      "${data.terraform_remote_state.main_infra.outputs.bucket_api_prod_arn}/canberra/v1/stop/*/live.pb",
-      "${data.terraform_remote_state.main_infra.outputs.bucket_api_develop_arn}/canberra/v1/stop/*/live.pb"
+      aws_dynamodb_table.gtfsrt_live_prod.arn
     ]
   }
 
