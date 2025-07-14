@@ -28,12 +28,7 @@ where
 
         let mut out = Vec::new();
         let map = (self.extract)(index);
-        let entities: Vec<&FeedEntity> = feed.entity.iter().filter(|e| {
-            !e.is_deleted.unwrap_or(false) &&
-            e.trip_update.as_ref()
-                .and_then(|tu| { tu.trip.trip_id.as_ref() })
-                .is_some()
-        }).collect();
+        let entities = entities(feed);
 
         for (id, trips) in map {
             let contents = if feed.header.stale(stale_threshold) {
@@ -61,6 +56,34 @@ where
         }
 
         out
+    }
+
+    fn single(
+        &self, 
+        feed: &FeedMessage, 
+        index: &TripIndex, 
+        params: &OrchestratorParams, 
+        id: &str
+    ) -> Vec<u8> {
+        let stale_threshold = params.stale_threshold.unwrap_or(DEFAULT_STALE_DATA_THRESHOLD);
+
+        let trips = (self.extract)(index).get(id);
+        let entities = entities(feed);
+
+        if feed.header.stale(stale_threshold) || trips.is_none() {
+            RealtimeEndpoint {
+                updates: vec![],
+                expire_timestamp: self.expire(params)
+            }
+        } else {
+            self.create_message(
+                entities.as_slice(),
+                params,
+                trips.unwrap().trip_id.as_slice(),
+                if self.is_stop_id { Some(id) } else { None },
+                stale_threshold
+            )
+        }.encode_to_vec()
     }
 }
 
@@ -117,6 +140,15 @@ where
             expire_timestamp: self.expire(params)
         }
     }
+}
+
+fn entities(feed: &FeedMessage) -> Vec<&FeedEntity> {
+    feed.entity.iter().filter(|e| {
+        !e.is_deleted.unwrap_or(false) &&
+            e.trip_update.as_ref()
+                .and_then(|tu| { tu.trip.trip_id.as_ref() })
+                .is_some()
+    }).collect()
 }
 
 #[cfg(test)]

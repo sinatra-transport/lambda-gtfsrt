@@ -19,4 +19,12 @@ impl Generator for StopGenerator {
             is_stop_id: true
         }.generate(feed, index, params)
     }
+
+    fn single(&self, feed: &FeedMessage, index: &TripIndex, params: &OrchestratorParams, id: &str) -> Vec<u8> {
+        GenericGenerator {
+            prefix: "stop",
+            extract: |i| &i.trips_by_route,
+            is_stop_id: true
+        }.single(feed, index, params, id)
+    }
 }

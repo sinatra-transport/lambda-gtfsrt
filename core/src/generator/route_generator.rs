@@ -19,4 +19,12 @@ impl Generator for RouteGenerator {
             is_stop_id: false
         }.generate(feed, index, params)
     }
+
+    fn single(&self, feed: &FeedMessage, index: &TripIndex, params: &OrchestratorParams, id: &str) -> Vec<u8> {
+        GenericGenerator {
+            prefix: "route",
+            extract: |i| &i.trips_by_route,
+            is_stop_id: false
+        }.single(feed, index, params, id)
+    }
 }
