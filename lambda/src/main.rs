@@ -11,7 +11,7 @@ use crate::build::build;
 
 #[derive(Deserialize)]
 struct Request {
-    bucket_upload: String,
+    table_upload: String,
     bucket_trip_index: String,
     key_trip_index: String,
     gtfsrt_url: String,

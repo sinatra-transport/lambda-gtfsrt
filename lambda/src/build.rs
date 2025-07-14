@@ -5,6 +5,7 @@ use gtfsrt_processor_core::generator::route_generator::RouteGenerator;
 use gtfsrt_processor_core::generator::stop_generator::StopGenerator;
 use gtfsrt_processor_core::orchestrator::Orchestrator;
 use gtfsrt_processor_core::uploader::S3Uploader;
+use crate::uploader::DynamoDBUploader;
 
 pub fn build(
     args: &Request,
@@ -26,9 +27,9 @@ pub fn build(
                 aws_sdk_s3::Client::new(aws_config)
             )
         )),
-        Box::new(S3Uploader::new(
-            &*args.bucket_upload,
-            aws_sdk_s3::Client::new(aws_config)
+        Box::new(DynamoDBUploader::new(
+            &*args.table_upload,
+            aws_sdk_dynamodb::Client::new(aws_config)
         )),
     )
 }
