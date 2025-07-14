@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 async-trait = "0.1.88"
 aws-config = "1.8.1"
+aws-sdk-dynamodb = "1.82.0"
 aws-sdk-s3 = "1.96.0"
 chrono = "0.4.41"
 gtfsrt-processor-core = { path = "../core" }

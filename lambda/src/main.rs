@@ -1,5 +1,6 @@
 mod secrets;
 mod build;
+mod uploader;
 
 use chrono::Duration;
 use gtfsrt_processor_core::models::OrchestratorParams;
