@@ -70,7 +70,10 @@ where
             trip_index_fetcher,
             gtfs_rt_fetcher,
             params,
-            trip_index_cache: Cache::new(1),
+            trip_index_cache: Cache::builder()
+                .max_capacity(1)
+                .time_to_live(Duration::minutes(1).to_std().unwrap())
+                .build(),
             gtfs_rt_cache: Cache::new(1)
         }
     }
