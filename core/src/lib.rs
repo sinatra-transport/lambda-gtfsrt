@@ -1,6 +1,6 @@
 pub mod generator;
 pub mod models;
-mod libs;
+pub mod libs;
 pub mod orchestrator;
 pub mod uploader;
 pub mod fetcher;

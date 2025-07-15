@@ -1,34 +1,9 @@
 mod params;
+mod live;
 
 use crate::params::{EnvironmentParameterProvider, ParameterProvider, ProcessorParams};
-use chrono::Duration;
-use gtfsrt_processor_core::models::OrchestratorParams;
-use gtfsrt_processor_core::orchestrator::{default_aws_config, Orchestrator};
 use poem::http::StatusCode;
 use poem::{get, handler, listener::TcpListener, Result, Route, Server};
-
-async fn run(params: ProcessorParams) -> Result<()> {
-    let aws_config = default_aws_config().await;
-    let orchestrator = Orchestrator::default(
-        &aws_config,
-        None,
-        params.bucket_upload.as_str(),
-        params.bucket_trip_index.as_str()
-    );
-    orchestrator.run(
-        &OrchestratorParams {
-            ttl: params.ttl.map(|t| Duration::seconds(t)),
-            gtfsrt_url: params.gtfsrt_url,
-            index_key: params.key_trip_index,
-            upload_workers: None,
-            stale_threshold: None
-        }
-    ).await.map_err(|e| poem::Error::from_string(
-        format!("Failed to complete work due to '{}'", e),
-        StatusCode::INTERNAL_SERVER_ERROR
-    ))?;
-    Ok(())
-}
 
 async fn params() -> Result<ProcessorParams> {
     EnvironmentParameterProvider::new().get().await
