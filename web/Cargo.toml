@@ -7,8 +7,11 @@ edition = "2024"
 gtfsrt-processor-core = { path = "../core" }
 chrono = "0.4.41"
 tokio = { version = "1.46.1", features = ["full"] }
-clap = { version = "4.5.40", features = ["derive"] }
 poem = "3.1.11"
 async-trait = "0.1.88"
 moka = { version = "0.12.10", features = ["future"] }
 thiserror = "2.0.12"
+reqwest = "0.12.22"
+aws-sdk-s3 = "1.96.0"
+aws-config = "1.8.1"
+aws-sdk-ssm = "1.83.0"

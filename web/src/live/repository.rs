@@ -1,4 +1,4 @@
-use crate::params::ProcessorParams;
+use crate::params::{ParameterProviderError, ProcessorParams};
 use gtfsrt_processor_core::fetcher::{GtfsRtFetcher, TripIndexFetcher};
 use gtfsrt_processor_core::libs::gtfs_realtime::FeedMessage;
 use gtfsrt_processor_core::libs::trip_index::TripIndex;
@@ -10,6 +10,7 @@ use gtfsrt_processor_core::generator::base::Generator;
 use gtfsrt_processor_core::generator::route_generator::RouteGenerator;
 use gtfsrt_processor_core::generator::stop_generator::StopGenerator;
 use gtfsrt_processor_core::models::OrchestratorParams;
+use poem::http::StatusCode;
 use thiserror::Error;
 
 pub trait LiveRepository {
@@ -17,15 +18,24 @@ pub trait LiveRepository {
     async fn get_route_live(&self, id: &str) -> Result<Vec<u8>, LiveRepositoryError>;
 }
 
-pub struct LiveRepositoryImpl {
-    trip_index_fetcher: Box<dyn TripIndexFetcher>,
-    gtfs_rt_fetcher: Box<dyn GtfsRtFetcher>,
+#[derive(Clone)]
+pub struct LiveRepositoryImpl<TIF, GRF>
+where
+    TIF: TripIndexFetcher,
+    GRF: GtfsRtFetcher
+{
+    trip_index_fetcher: TIF,
+    gtfs_rt_fetcher: GRF,
     params: ProcessorParams,
     trip_index_cache: Cache<u8, TripIndex>,
     gtfs_rt_cache: Cache<u8, FeedMessage>,
 }
 
-impl LiveRepository for LiveRepositoryImpl {
+impl <TIF, GRF> LiveRepository for LiveRepositoryImpl<TIF, GRF>
+where
+    TIF: TripIndexFetcher,
+    GRF: GtfsRtFetcher
+{
     async fn get_stop_live(&self, id: &str) -> Result<Vec<u8>, LiveRepositoryError> {
         Ok(StopGenerator::new().single(
             &self.get_gtfs_rt().await?,
@@ -45,11 +55,15 @@ impl LiveRepository for LiveRepositoryImpl {
     }
 }
 
-impl LiveRepositoryImpl {
+impl <TIF, GRF> LiveRepositoryImpl<TIF, GRF>
+where
+    TIF: TripIndexFetcher,
+    GRF: GtfsRtFetcher
+{
 
     pub fn new(
-        trip_index_fetcher: Box<dyn TripIndexFetcher>,
-        gtfs_rt_fetcher: Box<dyn GtfsRtFetcher>,
+        trip_index_fetcher: TIF,
+        gtfs_rt_fetcher: GRF,
         params: ProcessorParams,
     ) -> Self {
         Self {
@@ -74,7 +88,6 @@ impl LiveRepositoryImpl {
     async fn get_trip_index(&self) -> Result<TripIndex, LiveRepositoryError> {
         self.trip_index_cache.try_get_with(0, async {
             self.trip_index_fetcher
-                .as_ref()
                 .get_trip_index(&self.params.key_trip_index)
                 .await
                 .map_err(|e| WrappedError::from(e))
@@ -84,7 +97,6 @@ impl LiveRepositoryImpl {
     async fn get_gtfs_rt(&self) -> Result<FeedMessage, LiveRepositoryError> {
         self.gtfs_rt_cache.try_get_with(0, async {
             self.gtfs_rt_fetcher
-                .as_ref()
                 .get_gtfs_rt(&self.params.gtfsrt_url)
                 .await
                 .map_err(|e| WrappedError::from(e))
@@ -109,5 +121,14 @@ impl From<Box<dyn Error>> for WrappedError {
         Self {
             message: err.to_string(),
         }
+    }
+}
+
+impl From<LiveRepositoryError> for poem::Error {
+    fn from(value: LiveRepositoryError) -> Self {
+        poem::Error::from_string(
+            format!("{}", value),
+            StatusCode::INTERNAL_SERVER_ERROR
+        )
     }
 }

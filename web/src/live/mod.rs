@@ -1,2 +1,2 @@
-mod live_repository;
-mod cached;
+pub mod repository;
+pub mod controller;

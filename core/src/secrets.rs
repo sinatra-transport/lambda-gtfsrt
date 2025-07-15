@@ -8,6 +8,7 @@ pub trait Secrets {
     async fn secret(&self, name: &str) -> Result<String, Box<dyn Error>>;
 }
 
+#[derive(Clone)]
 pub struct ParameterStoreSecrets {
     client: ssm::Client
 }

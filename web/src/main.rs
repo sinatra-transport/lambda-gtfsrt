@@ -1,41 +1,18 @@
 mod params;
 mod live;
+mod dependencies;
 
-use crate::params::{EnvironmentParameterProvider, ParameterProvider, ProcessorParams};
-use poem::http::StatusCode;
-use poem::{get, handler, listener::TcpListener, Result, Route, Server};
-
-async fn params() -> Result<ProcessorParams> {
-    EnvironmentParameterProvider::new().get().await
-        .map_err(|e| poem::Error::from_string(
-            format!("Failed to parse params due to '{}'", e),
-            StatusCode::INTERNAL_SERVER_ERROR
-        ))
-}
-
-#[handler]
-async fn exec_sync() -> Result<()> {
-    run(params().await?).await?;
-    Ok(())
-}
-
-#[handler]
-async fn exec_background() -> Result<()> {
-    let params = params().await?;
-    tokio::spawn(async move {
-        let result = run(params).await;
-        if let Err(e) = result {
-            eprintln!("Error in background worker {}", e)
-        }
-    });
-    Ok(())
-}
+use crate::params::{EnvironmentParameterProvider, ParameterProvider};
+use poem::{get, listener::TcpListener, middleware, EndpointExt, Result, Route, Server};
 
 #[tokio::main]
 async fn main() -> Result<(), std::io::Error> {
+    let params = EnvironmentParameterProvider::new().get().await?;;
+
     let app = Route::new()
-        .at("/exec-sync", get(exec_sync))
-        .at("/exec-background", get(exec_background));
+        .at("/canberra/v1/route/:id/live.pb", get(live::controller::get_live_route))
+        .at("/canberra/v1/stop/:id/live.pb", get(live::controller::get_live_stop))
+        .with(middleware::AddData::new(dependencies::live_repository(params).await));
     Server::new(TcpListener::bind("0.0.0.0:3669"))
         .run(app)
         .await

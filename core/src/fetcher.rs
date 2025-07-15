@@ -24,6 +24,7 @@ pub trait TripIndexFetcher {
     ) -> Result<TripIndex, Box<dyn Error>>;
 }
 
+#[derive(Clone)]
 pub struct WebGtfsRtFetcher<S: Secrets + Send + Sync> {
     reqwest: reqwest::Client,
     secrets: S
@@ -57,6 +58,7 @@ where
     }
 }
 
+#[derive(Clone)]
 pub struct S3TripIndexFetcher {
     bucket: String,
     s3: s3::Client,
